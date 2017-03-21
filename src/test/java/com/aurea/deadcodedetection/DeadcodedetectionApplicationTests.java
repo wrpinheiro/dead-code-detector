@@ -1,4 +1,4 @@
-package com.aurea.assignment;
+package com.aurea.deadcodedetection;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

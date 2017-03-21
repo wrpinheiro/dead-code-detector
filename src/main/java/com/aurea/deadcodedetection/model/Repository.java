@@ -1,11 +1,11 @@
-package com.aurea.assignment.model;
+package com.aurea.deadcodedetection.model;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by wrpinheiro on 3/21/17.
@@ -27,7 +27,7 @@ public class Repository {
      */
     @NotNull
     @Column(name = "created_at")
-    private Date createAt;
+    private Date createdAt;
 
     /**
      * The time the repository was processed
@@ -42,6 +42,7 @@ public class Repository {
     @NotNull
     @Column(name = "repository_name")
     private String repositoryName;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "repository")
+    private List<AnalysedFile> filenames;
 }
-
-

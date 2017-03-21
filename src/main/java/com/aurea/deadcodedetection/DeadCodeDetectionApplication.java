@@ -1,12 +1,12 @@
-package com.aurea.assignment;
+package com.aurea.deadcodedetection;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class DeadcodedetectionApplication {
+public class DeadCodeDetectionApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(DeadcodedetectionApplication.class, args);
+		SpringApplication.run(DeadCodeDetectionApplication.class, args);
 	}
 }

@@ -1,6 +1,6 @@
-package com.aurea.assignment.repository;
+package com.aurea.deadcodedetection.repository;
 
-import com.aurea.assignment.model.Repository;
+import com.aurea.deadcodedetection.model.Repository;
 import org.springframework.data.repository.CrudRepository;
 
 /**

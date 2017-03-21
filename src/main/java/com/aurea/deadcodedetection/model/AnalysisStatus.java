@@ -1,4 +1,4 @@
-package com.aurea.assignment.model;
+package com.aurea.deadcodedetection.model;
 
 /**
  * Created by wrpinheiro on 3/21/17.
