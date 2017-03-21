@@ -2,6 +2,8 @@ package com.aurea.assignment.controller;
 
 import com.aurea.assignment.model.AnalysisStatus;
 import com.aurea.assignment.model.Repository;
+import com.aurea.assignment.repository.RepositoryRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -14,9 +16,11 @@ import java.util.*;
 @RequestMapping("/repository")
 public class RepositoryController {
 
+    @Autowired
+    private RepositoryRepository repository;
+
     @RequestMapping("/")
-    public List<Repository> getRepositories() {
-        Repository r = new Repository(1L, AnalysisStatus.ADDED, new Date(), new Date(), "url", "name");
-        return Arrays.asList(r);
+    public Iterable<Repository> getRepositories() {
+        return repository.findAll();
     }
 }
