@@ -5,7 +5,6 @@ import lombok.Data;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
-import java.util.List;
 
 /**
  * Created by wrpinheiro on 3/21/17.
@@ -43,6 +42,7 @@ public class Repository {
     @Column(name = "repository_name")
     private String repositoryName;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "repository")
-    private List<AnalysedFile> filenames;
+    @Column(name = "repository_description")
+    private String repositoryDescription;
+
 }

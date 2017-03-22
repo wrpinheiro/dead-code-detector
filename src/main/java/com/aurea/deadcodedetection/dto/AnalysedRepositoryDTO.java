@@ -1,19 +1,31 @@
 package com.aurea.deadcodedetection.dto;
 
-import com.aurea.deadcodedetection.model.AnalysedFile;
+import com.aurea.deadcodedetection.model.AnalysisStatus;
 import com.aurea.deadcodedetection.model.Repository;
-import lombok.Builder;
 import lombok.Data;
 
-import java.util.List;
+import java.util.Date;
 
 /**
  * Created by wrpinheiro on 3/21/17.
  */
 @Data
-@Builder
 public class AnalysedRepositoryDTO {
-    private Repository repository;
+    private Long id;
+    private String name;
+    private String description;
+    private AnalysisStatus status;
+    private Date createdAt;
+    private Date processedAt;
+    private String gitHubUrl;
 
-    private List<AnalysedFile> analysedFiles;
+    public AnalysedRepositoryDTO(Repository repository) {
+        this.id = repository.getId();
+        this.name = repository.getRepositoryName();
+        this.description = repository.getRepositoryDescription();
+        this.status = repository.getStatus();
+        this.createdAt = repository.getCreatedAt();
+        this.processedAt = repository.getProcessedAt();
+        this.gitHubUrl = repository.getRepositoryUrl();
+    }
 }
