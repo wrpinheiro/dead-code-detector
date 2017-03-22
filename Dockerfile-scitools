@@ -1,0 +1,14 @@
+FROM ubuntu:16.04
+
+ENV UNDERSTAND_VERSION 4.0.844
+
+RUN apt-get update && \
+  apt-get install -y libglib2.0-0 libxext6 wget && \
+  wget -qO- http://builds.scitools.com/all_builds/b844/Understand/Understand-$UNDERSTAND_VERSION-Linux-64bit.tgz \
+    | tar -zxv
+RUN echo "Server: scitools-license.devfactory.com 00000000 9000" > scitools/conf/license/locallicense.dat
+
+ENV LD_LIBRARY_PATH /usr/lib/jvm/java-8-oracle/jre/lib/amd64:/scitools/bin/linux64
+ENV PYTHONPATH /scitools/bin/linux64/python
+
+ENV PATH $PATH:/scitools/bin/linux64
