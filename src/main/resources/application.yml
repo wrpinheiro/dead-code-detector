@@ -1,0 +1,13 @@
+spring:
+  jersey:
+    application-path: /api
+
+endpoints:
+  enabled: false
+  info:
+    enabled: true
+  health:
+    enabled: true
+  metrics:
+    enabled: true
+
