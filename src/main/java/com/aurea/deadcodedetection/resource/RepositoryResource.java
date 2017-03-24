@@ -8,9 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
 import java.util.Date;
-import java.util.Map;
 
 import static com.aurea.deadcodedetection.model.AnalysisStatus.ADDED;
 
@@ -37,7 +35,7 @@ public class RepositoryResource {
     @ApiResponses(value = @ApiResponse(code = 200, message = "The repository created"))
     @POST
     public Repository addRepository(@ApiParam(value = "Repository to be added and analyzed")
-                                                RepositoryRequest repositoryRequest) {
+                                            RepositoryRequest repositoryRequest) {
         Repository repository = new Repository();
         repository.setRepositoryUrl(repositoryRequest.getUrl());
         repository.setRepositoryName(repositoryRequest.getName());
@@ -52,8 +50,8 @@ public class RepositoryResource {
     @ApiOperation(value = "List the dead code found in the repository. Version 1 - (version in header: application/vnd.dcd.v1+json)", response = AnalysedRepositoryDTO.class)
     @ApiResponses(value = @ApiResponse(code = 200, message = "The repository created"))
     @GET
-    @Path("/{repositoryId}/deadcode")
-    public AnalysedRepositoryDTO getDeadcode(@ApiParam(name = "repositoryId", value = "the repository Id to search")
+    @Path("/{repositoryId}/analysis")
+    public AnalysedRepositoryDTO getRepositoryCodeSmellsAnalysis(@ApiParam(name = "repositoryId", value = "the repository Id to search")
                                                  @PathParam("repositoryId") Long repositoryId) {
         Repository repository = this.repository.findOne(repositoryId);
 
