@@ -7,6 +7,8 @@ import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by wrpinheiro on 3/21/17.
@@ -33,12 +35,29 @@ public class Repository {
     private Date processedAt;
 
     @NotNull
-    private String repositoryUrl;
-
-    @NotNull
-    private String repositoryName;
+    private String url;
 
     private String repositoryDescription;
 
     private List<CodeSmell> codeSmells;
+
+    public String getOwner() {
+        Pattern pattern = pattern = Pattern.compile(".*[/:](.*)/.*\\.git");
+
+        Matcher matcher = pattern.matcher(url);
+
+        return matcher.find() ?
+            matcher.group(1) :
+            null;
+    }
+
+    public String getName() {
+        Pattern pattern = pattern = Pattern.compile(".*[/:].*/(.*)\\.git");
+
+        Matcher matcher = pattern.matcher(url);
+
+        return matcher.find() ?
+                matcher.group(1) :
+                null;
+    }
 }

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-wget https://github.com/wrpinheiro/spring-jpa-embedded-db/archive/master.zip
-unzip master.zip
-und create -db spring-jpa-embedded-db-master.udb -languages java c++
-und -db ./spring-jpa-embedded-db-master.udb add ./spring-jpa-embedded-db-master
-und -db spring-jpa-embedded-db-master.udb analyze
+UDB_FILE=$1.udb
+
+$SCITOOLS_HOME/und create -db $UDB_FILE -languages java c++
+$SCITOOLS_HOME/und -db $UDB_FILE add $2
+$SCITOOLS_HOME/und -db $UDB_FILE analyze

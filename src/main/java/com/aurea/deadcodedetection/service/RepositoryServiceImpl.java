@@ -29,8 +29,7 @@ public class RepositoryServiceImpl implements RepositoryService {
 
     public Repository addRepository(String name, String url) {
         Repository repository = Repository.builder()
-                .repositoryName(name)
-                .repositoryUrl(url)
+                .url(url)
                 .status(ADDED)
                 .createdAt(new Date())
                 .build();

@@ -30,7 +30,7 @@ public class RepositoryDAOImpl implements RepositoryDAO {
 
     @Override
     public List<Repository> findAll() {
-        return repositories.values().stream().sorted(comparing(Repository::getRepositoryUrl))
+        return repositories.values().stream().sorted(comparing(Repository::getUrl))
                 .collect(toList());
     }
 
