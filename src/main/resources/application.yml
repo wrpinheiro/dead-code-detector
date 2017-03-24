@@ -11,3 +11,6 @@ endpoints:
   metrics:
     enabled: true
 
+app:
+  analyzer:
+    repositoriesDirectory: ${ANALYZER_REPO_DIR:/Users/wrpinheiro/.deadCodeDetection/repos}

@@ -19,6 +19,8 @@ public class Repository {
     @NotNull
     private AnalysisStatus status;
 
+    private String errorMessage;
+
     /**
      * The time the repository was added
      */

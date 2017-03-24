@@ -7,6 +7,7 @@ import com.aurea.deadcodedetection.model.Repository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableAsync;
 
 import javax.annotation.PostConstruct;
 import java.util.Date;
@@ -15,6 +16,7 @@ import static com.aurea.deadcodedetection.model.CodeSmellType.DEAD_CODE;
 import static java.util.Arrays.asList;
 
 @SpringBootApplication
+@EnableAsync
 public class DeadCodeDetectionApplication {
 
 	@Autowired

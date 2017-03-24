@@ -2,6 +2,7 @@ package com.aurea.deadcodedetection.service;
 
 import com.aurea.deadcodedetection.dao.RepositoryDAO;
 import com.aurea.deadcodedetection.model.Repository;
+import com.aurea.deadcodedetection.service.analysis.AnalysisService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +20,9 @@ public class RepositoryServiceImpl implements RepositoryService {
     @Autowired
     private RepositoryDAO repositoryDAO;
 
+    @Autowired
+    private AnalysisService analysisService;
+
     private String getUniqueId() {
         return UUID.randomUUID().toString();
     }
@@ -32,6 +36,8 @@ public class RepositoryServiceImpl implements RepositoryService {
                 .build();
 
         Repository newRepository = this.repositoryDAO.save(repository);
+
+        analysisService.analyse(newRepository);
 
         return newRepository;
     }

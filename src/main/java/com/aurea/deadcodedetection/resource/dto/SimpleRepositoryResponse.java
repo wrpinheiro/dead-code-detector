@@ -15,6 +15,7 @@ public class SimpleRepositoryResponse {
     private String name;
     private String description;
     private AnalysisStatus status;
+    private String errorMessage;
     private Date createdAt;
     private Date processedAt;
     private String gitHubUrl;
@@ -24,6 +25,7 @@ public class SimpleRepositoryResponse {
         this.name = repository.getRepositoryName();
         this.description = repository.getRepositoryDescription();
         this.status = repository.getStatus();
+        this.errorMessage = repository.getErrorMessage();
         this.createdAt = repository.getCreatedAt();
         this.processedAt = repository.getProcessedAt();
         this.gitHubUrl = repository.getRepositoryUrl();
