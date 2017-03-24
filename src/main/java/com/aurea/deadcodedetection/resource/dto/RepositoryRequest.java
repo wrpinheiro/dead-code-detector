@@ -1,4 +1,4 @@
-package com.aurea.deadcodedetection.resource;
+package com.aurea.deadcodedetection.resource.dto;
 
 import lombok.Data;
 

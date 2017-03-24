@@ -3,9 +3,10 @@ package com.aurea.deadcodedetection.model;
 import lombok.Builder;
 import lombok.Data;
 
-import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by wrpinheiro on 3/21/17.
@@ -36,4 +37,6 @@ public class Repository {
     private String repositoryName;
 
     private String repositoryDescription;
+
+    private List<CodeSmell> codeSmells;
 }
