@@ -16,10 +16,13 @@ import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static java.util.Collections.singletonList;
 import static java.util.Comparator.reverseOrder;
 
 /**
@@ -31,6 +34,8 @@ public class AnalysisServiceImpl implements AnalysisService {
 
     @Value("${app.analyzer.repositoriesDirectory}")
     private String repositoriesDirectory;
+
+    private static final String BRANCH_TO_ANALYZE = "master";
 
     @Override
     @Async
@@ -51,20 +56,31 @@ public class AnalysisServiceImpl implements AnalysisService {
 
         String ownerAndRepoName[] = this.getUserAndNameFromUrl(url);
         String owner = ownerAndRepoName[0];
-        String repository = ownerAndRepoName[1];
+        String repositoryName = ownerAndRepoName[1];
 
         try {
-            File repositoryDir = this.createRepositoryDirectory(owner, repository);
+            File repositoryDir = this.createRepositoryDirectory(owner, repositoryName);
 
             Git.cloneRepository()
                     .setBare(false)
                     .setURI(url)
                     .setDirectory(repositoryDir)
+                    .setBranchesToClone(singletonList(BRANCH_TO_ANALYZE))
+                    .setCloneSubmodules(false)
                     .call();
+
+            // the analysis doesn't required the .git directory.
+            removeDotGitDir(repositoryDir, repositoryName);
+            new File(repositoryDir, repositoryName).delete();
         } catch(GitAPIException | JGitInternalException | IOException ex) {
             log.error("Error downloading Github repository with message {}", ex.getMessage());
             throw new AnalysisException(ex.getMessage());
         }
+    }
+
+    private void removeDotGitDir(File repositoryDir, String repositoryName) throws IOException {
+        Path gitDir = Paths.get(repositoryDir.getAbsolutePath(), ".git");
+        deleteSubDirectoryStructure(gitDir);
     }
 
     private String[] getUserAndNameFromUrl(String url) {
@@ -81,16 +97,21 @@ public class AnalysisServiceImpl implements AnalysisService {
 
     private File createRepositoryDirectory(String owner, String repository) throws IOException {
         Path path = Paths.get(repositoriesDirectory, owner + "/");
+
         if (Files.exists(path)) {
-            Files.walk(path, FileVisitOption.FOLLOW_LINKS)
-                    .sorted(reverseOrder())
-                    .map(Path::toFile)
-                    .peek(System.out::println)
-                    .forEach(File::delete);
+            deleteSubDirectoryStructure(path);
         }
 
         Files.createDirectories(path);
 
         return Paths.get(repositoriesDirectory, owner, repository).toFile();
+    }
+
+    private void deleteSubDirectoryStructure(Path path) throws IOException {
+        Files.walk(path, FileVisitOption.FOLLOW_LINKS)
+                .sorted(reverseOrder())
+                .map(Path::toFile)
+                .peek(System.out::println)
+                .forEach(File::delete);
     }
 }
