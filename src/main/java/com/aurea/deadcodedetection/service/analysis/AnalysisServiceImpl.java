@@ -18,6 +18,7 @@ import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Date;
 
 import static java.util.Collections.singletonList;
 import static java.util.Comparator.reverseOrder;
@@ -51,16 +52,59 @@ public class AnalysisServiceImpl implements AnalysisService {
 
         try {
             Path repositoryDir = cloneGitHubRepository(repository);
-            createUDBFile(repository, repositoryDir, dataDir);
+            Path udbFile = createUDBFile(repository, repositoryDir, dataDir);
+            checkDeadCodeAnalysis(repository, udbFile);
 
+            repository.setStatus(AnalysisStatus.COMPLETED);
+            repository.setProcessedAt(new Date());
         } catch (AnalysisException ex) {
             repository.setErrorMessage(ex.getMessage());
             repository.setStatus(AnalysisStatus.FAILED);
         }
     }
 
-    private void createUDBFile(Repository repository, Path repositoryDir, String dataDir) {
-        log.info("Cloning UDB file for repository {}", repository.getUrl());
+    private void checkDeadCodeAnalysis(Repository repository, Path udbFile) {
+        log.info("Checking dead code for repository {}", repository.getUrl());
+
+        final String UPERL_FILE = scitoolsHome + "/uperl";
+        final String UNUSED_CODE_SCRIPT = scriptsDir + "/acjf_unused.pl";
+
+        try {
+            ProcessBuilder processBuilder = new ProcessBuilder(UPERL_FILE, UNUSED_CODE_SCRIPT, "-db",
+                    udbFile.toAbsolutePath().toString());
+
+            Process p = processBuilder.start();
+
+            BufferedReader stdout = new BufferedReader(new InputStreamReader(p.getInputStream()));
+            BufferedReader stderr = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+            String line;
+
+            StringBuilder errorLog = new StringBuilder();
+            StringBuilder outputLog = new StringBuilder();
+
+            while ((line = stdout.readLine()) != null) {
+                outputLog.append(line);
+            }
+
+            while ((line = stderr.readLine()) != null) {
+                errorLog.append(line);
+            }
+
+            log.debug("Finished algorithm to detect dead code in repository: {}", repository.getUrl());
+
+            if (p.waitFor() != 0) {
+                log.error("Error running algorithm to detect dead code in repository {}:\n{}", repository.getUrl(), errorLog);
+                throw new AnalysisException("Error running algorithm to detect dead code.");
+            }
+        } catch (IOException | InterruptedException ex) {
+            log.error("Error running algorithm to detect dead code in repository {}:\n{}", repository.getUrl(), ex.getMessage());
+            throw new AnalysisException("Error running algorithm to detect dead code: {}" + ex.getMessage());
+        }
+
+    }
+
+    private Path createUDBFile(Repository repository, Path repositoryDir, String dataDir) {
+        log.info("Creating UDB file for repository {}", repository.getUrl());
 
         final String CREATE_UND_SCRIPT = scriptsDir + "create_und.sh";
         final String UND_FILE = dataDir + String.format("%s-%s", repository.getOwner(), repository.getName());
@@ -87,11 +131,13 @@ public class AnalysisServiceImpl implements AnalysisService {
 
             log.debug("Finished creation of UDB file for repository: {}", repository.getUrl());
 
-            if (p.exitValue() != 0) {
+            if (p.waitFor() != 0) {
                 log.error("Error creating UDB file\n{}", errorLog);
                 throw new AnalysisException("Error creating UDB file");
             }
-        } catch (IOException ex) {
+
+            return Paths.get(UND_FILE);
+        } catch (IOException | InterruptedException ex) {
             log.error("Error creating UDB file\n{}", ex.getMessage());
             throw new AnalysisException("Error creating UDB file" + ex.getMessage());
         }
