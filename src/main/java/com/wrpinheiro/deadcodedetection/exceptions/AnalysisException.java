@@ -1,4 +1,4 @@
-package com.wrpinheiro.deadcodedetection.service.analysis;
+package com.wrpinheiro.deadcodedetection.exceptions;
 
 /**
  * Created by wrpinheiro on 3/24/17.

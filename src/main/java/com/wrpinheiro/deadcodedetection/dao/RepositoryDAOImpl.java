@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -36,5 +37,16 @@ public class RepositoryDAOImpl implements RepositoryDAO {
     @Override
     public Repository findById(Long repositoryId) {
         return repositories.get(repositoryId);
+    }
+
+    @Override
+    public Optional<Repository> findByUrl(String url) {
+        return repositories.values()
+                .stream().filter(repo -> repo.getUrl().equals(url)).findFirst();
+    }
+
+    @Override
+    public void remove(Long id) {
+        this.repositories.remove(id);
     }
 }

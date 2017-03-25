@@ -13,4 +13,8 @@ public interface RepositoryService {
     List<Repository> findAll();
 
     Repository findById(Long id);
+
+    void analyze(Repository newRepository);
+
+    void removeRepository(Repository repository);
 }

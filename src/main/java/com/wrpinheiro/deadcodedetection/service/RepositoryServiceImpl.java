@@ -1,6 +1,8 @@
 package com.wrpinheiro.deadcodedetection.service;
 
 import com.wrpinheiro.deadcodedetection.dao.RepositoryDAO;
+import com.wrpinheiro.deadcodedetection.exceptions.DuplicatedEntity;
+import com.wrpinheiro.deadcodedetection.exceptions.InvalidStateException;
 import com.wrpinheiro.deadcodedetection.model.Repository;
 import com.wrpinheiro.deadcodedetection.service.analysis.AnalysisService;
 import com.wrpinheiro.deadcodedetection.model.AnalysisStatus;
@@ -22,11 +24,12 @@ public class RepositoryServiceImpl implements RepositoryService {
     @Autowired
     private AnalysisService analysisService;
 
-    private String getUniqueId() {
-        return UUID.randomUUID().toString();
-    }
-
     public Repository addRepository(String url) {
+        if (repositoryDAO.findByUrl(url).isPresent()) {
+            throw new DuplicatedEntity(String.format("Repository with URL %s already exists. If you want to check the " +
+                    "dead code int the available repository, execute the endpoint repository/{repository.id}/checkCode", url));
+        }
+
         Repository repository = Repository.builder()
                 .url(url)
                 .status(AnalysisStatus.ADDED)
@@ -35,9 +38,21 @@ public class RepositoryServiceImpl implements RepositoryService {
 
         Repository newRepository = this.repositoryDAO.save(repository);
 
-        analysisService.analyse(newRepository);
+        analyze(newRepository);
 
         return newRepository;
+    }
+
+    public void analyze(Repository newRepository) {
+        analysisService.analyse(newRepository);
+    }
+
+    @Override
+    public void removeRepository(Repository repository) {
+        if (repository.getStatus().equals(AnalysisStatus.PROCESSING)) {
+            throw new InvalidStateException("Could not remove a repository while being analyzed");
+        }
+        repositoryDAO.remove(repository.getId());
     }
 
     public List<Repository> findAll() {

@@ -1,5 +1,6 @@
 package com.wrpinheiro.deadcodedetection.service.analysis;
 
+import com.wrpinheiro.deadcodedetection.exceptions.AnalysisException;
 import com.wrpinheiro.deadcodedetection.model.AnalysisStatus;
 import com.wrpinheiro.deadcodedetection.model.DeadCodeIssue;
 import com.wrpinheiro.deadcodedetection.model.Repository;

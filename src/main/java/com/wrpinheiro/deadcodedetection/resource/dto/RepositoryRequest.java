@@ -8,7 +8,6 @@ import lombok.Data;
  */
 @Data
 public class RepositoryRequest {
-    @ApiModelProperty(value = "A Github url",
-            allowableValues = "a url in the format: https://github.com/<ownser>/<repository>.git")
+    @ApiModelProperty(allowableValues = "A Github url in format: https://github.com/<owner>/<repository>.git")
     private String url;
 }
