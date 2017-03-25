@@ -3,15 +3,14 @@ package com.wrpinheiro.deadcodedetection.service;
 import com.wrpinheiro.deadcodedetection.dao.RepositoryDAO;
 import com.wrpinheiro.deadcodedetection.exceptions.DuplicatedEntity;
 import com.wrpinheiro.deadcodedetection.exceptions.InvalidStateException;
+import com.wrpinheiro.deadcodedetection.model.AnalysisStatus;
 import com.wrpinheiro.deadcodedetection.model.Repository;
 import com.wrpinheiro.deadcodedetection.service.analysis.AnalysisService;
-import com.wrpinheiro.deadcodedetection.model.AnalysisStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * Created by wrpinheiro on 3/24/17.
@@ -44,6 +43,9 @@ public class RepositoryServiceImpl implements RepositoryService {
     }
 
     public void analyze(Repository newRepository) {
+        if (newRepository.getStatus().equals(AnalysisStatus.PROCESSING)) {
+            throw new InvalidStateException("Can't analyze a repository already being analyzed");
+        }
         analysisService.analyse(newRepository);
     }
 

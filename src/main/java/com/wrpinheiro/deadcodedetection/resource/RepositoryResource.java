@@ -65,7 +65,8 @@ public class RepositoryResource {
     @ApiOperation(value = "Analyse a repository to find dead code.", response = SimpleRepositoryResponse.class)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The repository is going to be analyzed (search for dead code"),
-            @ApiResponse(code = 404, message = "A repository with the ID requested could not be found")
+            @ApiResponse(code = 404, message = "A repository with the ID requested could not be found"),
+            @ApiResponse(code = 412, message = "Can't analyze a repository already being analyzed")
     })
     @Path("{repositoryId}/checkCode")
     public Repository checkDeadCodeIssues(@ApiParam(name = "repositoryId", value = "The repository id to find dead " +
@@ -76,7 +77,12 @@ public class RepositoryResource {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
 
-        repositoryService.analyze(repository);
+        try {
+            repositoryService.analyze(repository);
+        } catch (InvalidStateException ex) {
+            throw new WebApplicationException(Response.Status.PRECONDITION_FAILED);
+        }
+
 
         return repository;
     }

@@ -59,4 +59,16 @@ public class Repository {
                 matcher.group(1) :
                 null;
     }
+
+    public void setStatus(AnalysisStatus status) {
+        this.status = status;
+
+        if (!status.equals(AnalysisStatus.FAILED)) {
+            this.errorMessage = null;
+        }
+
+        if (!status.equals(AnalysisStatus.COMPLETED)) {
+            this.deadCodeIssues = null;
+        }
+    }
 }

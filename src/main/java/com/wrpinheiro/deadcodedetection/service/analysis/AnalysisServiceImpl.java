@@ -68,6 +68,8 @@ public class AnalysisServiceImpl implements AnalysisService {
             repository.setErrorMessage(ex.getMessage());
             repository.setStatus(AnalysisStatus.FAILED);
         }
+
+        log.info("Finished analysis for repository {}", repository.getUrl());
     }
 
     private DeadCodeIssue parseDeadCodeIssue(String kind, String[] location) {
@@ -189,7 +191,7 @@ public class AnalysisServiceImpl implements AnalysisService {
 
             if (p.waitFor() != 0) {
                 log.error("Error creating UDB file\n{}", errorLog);
-                throw new AnalysisException("Error creating UDB file");
+                throw new AnalysisException("Error creating UDB file: " );
             }
 
             return Paths.get(UND_FILE + ".udb");
@@ -219,7 +221,7 @@ public class AnalysisServiceImpl implements AnalysisService {
 
             return repositoryDir.toPath();
         } catch(GitAPIException | JGitInternalException | IOException ex) {
-            log.error("Error downloading Github repository with message {}", ex.getMessage());
+            log.error("Error downloading Github repository with message {}", ex);
             throw new AnalysisException(ex.getMessage());
         }
     }
