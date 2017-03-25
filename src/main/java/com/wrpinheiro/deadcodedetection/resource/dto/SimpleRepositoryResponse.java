@@ -1,7 +1,7 @@
-package com.aurea.deadcodedetection.resource.dto;
+package com.wrpinheiro.deadcodedetection.resource.dto;
 
-import com.aurea.deadcodedetection.model.AnalysisStatus;
-import com.aurea.deadcodedetection.model.Repository;
+import com.wrpinheiro.deadcodedetection.model.AnalysisStatus;
+import com.wrpinheiro.deadcodedetection.model.Repository;
 import lombok.Data;
 
 import java.util.Date;

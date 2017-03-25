@@ -1,8 +1,8 @@
-package com.aurea.deadcodedetection.service.analysis;
+package com.wrpinheiro.deadcodedetection.service.analysis;
 
-import com.aurea.deadcodedetection.model.AnalysisStatus;
-import com.aurea.deadcodedetection.model.DeadCodeIssue;
-import com.aurea.deadcodedetection.model.Repository;
+import com.wrpinheiro.deadcodedetection.model.AnalysisStatus;
+import com.wrpinheiro.deadcodedetection.model.DeadCodeIssue;
+import com.wrpinheiro.deadcodedetection.model.Repository;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;

@@ -1,4 +1,4 @@
-package com.aurea.deadcodedetection.resource.dto;
+package com.wrpinheiro.deadcodedetection.resource.dto;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;

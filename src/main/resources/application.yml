@@ -17,4 +17,4 @@ app:
   analyzer:
     dataDir: ${ANALYZER_REPO_DIR:/Users/wrpinheiro/.deadCodeDetection/}
     scriptsDir: ${APP_SCRIPTS_DIR:/Users/wrpinheiro/mystuff/crossover/dead-code-detection/scripts/}
-    scitoolsHome: ${APP_SCITOOLS_HOME:/Applications/scitools/bin/macosx}
+    scitoolsHome: ${SCITOOLS_HOME:/Applications/scitools/bin/macosx}

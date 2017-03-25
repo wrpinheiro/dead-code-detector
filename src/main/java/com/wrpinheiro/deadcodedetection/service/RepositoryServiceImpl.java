@@ -1,16 +1,15 @@
-package com.aurea.deadcodedetection.service;
+package com.wrpinheiro.deadcodedetection.service;
 
-import com.aurea.deadcodedetection.dao.RepositoryDAO;
-import com.aurea.deadcodedetection.model.Repository;
-import com.aurea.deadcodedetection.service.analysis.AnalysisService;
+import com.wrpinheiro.deadcodedetection.dao.RepositoryDAO;
+import com.wrpinheiro.deadcodedetection.model.Repository;
+import com.wrpinheiro.deadcodedetection.service.analysis.AnalysisService;
+import com.wrpinheiro.deadcodedetection.model.AnalysisStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-
-import static com.aurea.deadcodedetection.model.AnalysisStatus.ADDED;
 
 /**
  * Created by wrpinheiro on 3/24/17.
@@ -30,7 +29,7 @@ public class RepositoryServiceImpl implements RepositoryService {
     public Repository addRepository(String url) {
         Repository repository = Repository.builder()
                 .url(url)
-                .status(ADDED)
+                .status(AnalysisStatus.ADDED)
                 .createdAt(new Date())
                 .build();
 

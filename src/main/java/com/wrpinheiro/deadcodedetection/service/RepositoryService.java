@@ -1,6 +1,6 @@
-package com.aurea.deadcodedetection.service;
+package com.wrpinheiro.deadcodedetection.service;
 
-import com.aurea.deadcodedetection.model.Repository;
+import com.wrpinheiro.deadcodedetection.model.Repository;
 
 import java.util.List;
 

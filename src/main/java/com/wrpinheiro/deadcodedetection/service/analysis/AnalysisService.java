@@ -1,6 +1,6 @@
-package com.aurea.deadcodedetection.service.analysis;
+package com.wrpinheiro.deadcodedetection.service.analysis;
 
-import com.aurea.deadcodedetection.model.Repository;
+import com.wrpinheiro.deadcodedetection.model.Repository;
 import org.springframework.scheduling.annotation.Async;
 
 /**

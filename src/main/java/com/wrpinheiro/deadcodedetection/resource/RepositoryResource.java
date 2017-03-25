@@ -1,9 +1,9 @@
-package com.aurea.deadcodedetection.resource;
+package com.wrpinheiro.deadcodedetection.resource;
 
-import com.aurea.deadcodedetection.model.Repository;
-import com.aurea.deadcodedetection.resource.dto.RepositoryRequest;
-import com.aurea.deadcodedetection.resource.dto.SimpleRepositoryResponse;
-import com.aurea.deadcodedetection.service.RepositoryService;
+import com.wrpinheiro.deadcodedetection.model.Repository;
+import com.wrpinheiro.deadcodedetection.resource.dto.RepositoryRequest;
+import com.wrpinheiro.deadcodedetection.resource.dto.SimpleRepositoryResponse;
+import com.wrpinheiro.deadcodedetection.service.RepositoryService;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

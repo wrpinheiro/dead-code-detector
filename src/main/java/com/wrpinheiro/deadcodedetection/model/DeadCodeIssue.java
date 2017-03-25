@@ -1,4 +1,4 @@
-package com.aurea.deadcodedetection.model;
+package com.wrpinheiro.deadcodedetection.model;
 
 import lombok.Builder;
 import lombok.Data;

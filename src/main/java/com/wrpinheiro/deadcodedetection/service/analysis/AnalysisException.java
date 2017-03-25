@@ -1,4 +1,4 @@
-package com.aurea.deadcodedetection.service.analysis;
+package com.wrpinheiro.deadcodedetection.service.analysis;
 
 /**
  * Created by wrpinheiro on 3/24/17.

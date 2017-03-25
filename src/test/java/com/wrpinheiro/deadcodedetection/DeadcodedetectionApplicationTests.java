@@ -1,4 +1,4 @@
-package com.aurea.deadcodedetection;
+package com.wrpinheiro.deadcodedetection;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

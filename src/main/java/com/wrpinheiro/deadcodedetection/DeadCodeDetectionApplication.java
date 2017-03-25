@@ -1,6 +1,6 @@
-package com.aurea.deadcodedetection;
+package com.wrpinheiro.deadcodedetection;
 
-import com.aurea.deadcodedetection.dao.RepositoryDAO;
+import com.wrpinheiro.deadcodedetection.dao.RepositoryDAO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

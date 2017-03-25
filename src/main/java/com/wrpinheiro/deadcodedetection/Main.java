@@ -1,6 +1,6 @@
-package com.aurea.deadcodedetection;
+package com.wrpinheiro.deadcodedetection;
 
-import com.aurea.deadcodedetection.model.DeadCodeIssue;
+import com.wrpinheiro.deadcodedetection.model.DeadCodeIssue;
 
 import java.io.IOException;
 import java.nio.file.Files;

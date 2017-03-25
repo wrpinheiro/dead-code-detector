@@ -1,4 +1,4 @@
-package com.aurea.deadcodedetection.resource;
+package com.wrpinheiro.deadcodedetection.resource;
 
 import io.swagger.jaxrs.config.BeanConfig;
 import io.swagger.jaxrs.listing.ApiListingResource;
@@ -32,7 +32,7 @@ public class JerseyConfig extends ResourceConfig {
         config.setContact("Wellington Pinheiro");
         config.setSchemes(new String[] { "http", "https" });
         config.setBasePath("/api");
-        config.setResourcePackage("com.aurea.deadcodedetection.resource");
+        config.setResourcePackage("com.wrpinheiro.deadcodedetection.resource");
         config.setPrettyPrint(true);
         config.setScan(true);
     }
