@@ -1,5 +1,6 @@
 package com.aurea.deadcodedetection.resource.dto;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**
@@ -7,6 +8,7 @@ import lombok.Data;
  */
 @Data
 public class RepositoryRequest {
+    @ApiModelProperty(value = "A Github url",
+            allowableValues = "a url in the format: https://github.com/<ownser>/<repository>.git")
     private String url;
-    private String name;
 }

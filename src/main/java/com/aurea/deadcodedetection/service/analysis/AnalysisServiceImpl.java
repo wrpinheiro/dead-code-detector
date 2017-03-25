@@ -1,6 +1,7 @@
 package com.aurea.deadcodedetection.service.analysis;
 
 import com.aurea.deadcodedetection.model.AnalysisStatus;
+import com.aurea.deadcodedetection.model.DeadCodeIssue;
 import com.aurea.deadcodedetection.model.Repository;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.Git;
@@ -18,7 +19,10 @@ import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
 
 import static java.util.Collections.singletonList;
 import static java.util.Comparator.reverseOrder;
@@ -53,7 +57,9 @@ public class AnalysisServiceImpl implements AnalysisService {
         try {
             Path repositoryDir = cloneGitHubRepository(repository);
             Path udbFile = createUDBFile(repository, repositoryDir, dataDir);
-            checkDeadCodeAnalysis(repository, udbFile);
+            String deadCodeIssuesOutput = checkDeadCodeAnalysis(repository, udbFile);
+
+            parseDeadCodeIssues(repository, deadCodeIssuesOutput);
 
             repository.setStatus(AnalysisStatus.COMPLETED);
             repository.setProcessedAt(new Date());
@@ -63,15 +69,62 @@ public class AnalysisServiceImpl implements AnalysisService {
         }
     }
 
-    private void checkDeadCodeAnalysis(Repository repository, Path udbFile) {
+    private DeadCodeIssue parseDeadCodeIssue(String kind, String[] location) {
+        return DeadCodeIssue.builder()
+                .kind(kind)
+                .filename(location[2].trim())
+                .fromLine(Integer.valueOf(location[4].trim()))
+                .toLine(Integer.valueOf(location[5].trim()))
+                .ref(location[0].trim())
+                .build();
+    }
+
+    /**
+     * The expected deadCodeOutput is something like:
+     *
+     * 0 = "@Class"
+     * 1 = "\tMyBufferedReader;[File:;/Users/wrpinheiro/.deadCodeDetection/repos/wrpinheiro/diversos/jdk7post2/MyBufferedReader.java;Line:;5;14;]"
+     * 2 = "@Parameter"
+     * 3 = "\tGerenciadorBomba.main.args;[File:;/Users/wrpinheiro/.deadCodeDetection/repos/wrpinheiro/diversos/infoq/jdk7/GerenciadorBomba.java;Line:;13;13;]"
+     * 4 = "\tGerenciadorRecursosMultiCatch.main.args;[File:;/Users/wrpinheiro/.deadCodeDetection/repos/wrpinheiro/diversos/infoq/jdk7/GerenciadorRecursosMultiCatch.java;Line:;19;19;]"
+     * 5 = "\tInferenciaGenerics.main.args;[File:;/Users/wrpinheiro/.deadCodeDetection/repos/wrpinheiro/diversos/infoq/jdk7/InferenciaGenerics.java;Line:;8;8;]"
+     * 6 = "\tSeparadorLiteraisNumericos.main.args;[File:;/Users/wrpinheiro/.deadCodeDetection/repos/wrpinheiro/diversos/infoq/jdk7/SeparadorLiteraisNumericos.java;Line:;2;2;]"
+     *
+     * The kind of dead code starts with an "@" and the information about the dead code (the file, lines, etc) and in a dot comma separated string
+     *
+     * @param repository
+     * @param deadCodeOutput
+     */
+    private void parseDeadCodeIssues(Repository repository, String deadCodeOutput) {
+        log.info("Creating instances of dead code issues for repository {}", repository.getUrl());
+
+        List<DeadCodeIssue> deadCodeIssues = new ArrayList<>();
+
+        String lastType = "";
+        for (String s: deadCodeOutput.split("\\?")) {
+            if (s.startsWith("@")) {
+                lastType = s.substring(1);
+            } else if (!s.trim().equals("")){
+                String[] location = s.split(";");
+
+                deadCodeIssues.add(parseDeadCodeIssue(lastType, location));
+            }
+        }
+
+        deadCodeIssues.sort(Comparator.comparing(DeadCodeIssue::getFilename));
+
+        repository.setDeadCodeIssues(deadCodeIssues);
+    }
+
+    private String checkDeadCodeAnalysis(Repository repository, Path udbFile) {
         log.info("Checking dead code for repository {}", repository.getUrl());
 
         final String UPERL_FILE = scitoolsHome + "/uperl";
-        final String UNUSED_CODE_SCRIPT = scriptsDir + "/acjf_unused.pl";
+        final String UNUSED_CODE_SCRIPT = scriptsDir + "/acjf_unused_modified.pl";
 
         try {
             ProcessBuilder processBuilder = new ProcessBuilder(UPERL_FILE, UNUSED_CODE_SCRIPT, "-db",
-                    udbFile.toAbsolutePath().toString());
+                    udbFile.toAbsolutePath().toString(), "-byKind");
 
             Process p = processBuilder.start();
 
@@ -96,6 +149,8 @@ public class AnalysisServiceImpl implements AnalysisService {
                 log.error("Error running algorithm to detect dead code in repository {}:\n{}", repository.getUrl(), errorLog);
                 throw new AnalysisException("Error running algorithm to detect dead code.");
             }
+
+            return outputLog.toString();
         } catch (IOException | InterruptedException ex) {
             log.error("Error running algorithm to detect dead code in repository {}:\n{}", repository.getUrl(), ex.getMessage());
             throw new AnalysisException("Error running algorithm to detect dead code: {}" + ex.getMessage());
@@ -136,7 +191,7 @@ public class AnalysisServiceImpl implements AnalysisService {
                 throw new AnalysisException("Error creating UDB file");
             }
 
-            return Paths.get(UND_FILE);
+            return Paths.get(UND_FILE + ".udb");
         } catch (IOException | InterruptedException ex) {
             log.error("Error creating UDB file\n{}", ex.getMessage());
             throw new AnalysisException("Error creating UDB file" + ex.getMessage());
@@ -191,7 +246,6 @@ public class AnalysisServiceImpl implements AnalysisService {
         Files.walk(path, FileVisitOption.FOLLOW_LINKS)
                 .sorted(reverseOrder())
                 .map(Path::toFile)
-                .peek(System.out::println)
                 .forEach(File::delete);
     }
 }

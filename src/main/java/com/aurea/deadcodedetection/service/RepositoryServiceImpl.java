@@ -27,7 +27,7 @@ public class RepositoryServiceImpl implements RepositoryService {
         return UUID.randomUUID().toString();
     }
 
-    public Repository addRepository(String name, String url) {
+    public Repository addRepository(String url) {
         Repository repository = Repository.builder()
                 .url(url)
                 .status(ADDED)

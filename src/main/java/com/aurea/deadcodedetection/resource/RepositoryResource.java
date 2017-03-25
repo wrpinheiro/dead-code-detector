@@ -39,7 +39,7 @@ public class RepositoryResource {
     public Repository addRepository(@ApiParam(value = "Repository to be added and analyzed")
                                             RepositoryRequest repositoryRequest) {
 
-        return repositoryService.addRepository(repositoryRequest.getName(), repositoryRequest.getUrl());
+        return repositoryService.addRepository(repositoryRequest.getUrl());
     }
 
     @ApiOperation(value = "List the dead code found in the repository.", response = SimpleRepositoryResponse.class)

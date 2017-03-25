@@ -1,38 +1,43 @@
 package com.aurea.deadcodedetection;
 
-import java.io.BufferedReader;
+import com.aurea.deadcodedetection.model.DeadCodeIssue;
+
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.List;
 
 /**
  * Created by wrpinheiro on 3/24/17.
  */
 public class Main {
     public static void main(String[] args) throws IOException {
-        final String CREATE_UND_SCRIPT = "/Users/wrpinheiro/mystuff/crossover/dead-code-detection/scripts/" + "create_und.sh";
-        final String UND_FILE = "/Users/wrpinheiro/mystuff/crossover/dead-code-detection/examples/simple-example/simple.udb";
+        List<String> listOfStrings = Files.readAllLines(Paths.get("/Users/wrpinheiro/mystuff/crossover/dead-code-detection/deadcode.txt"));
+        String output = listOfStrings.get(0);
 
-        System.out.println(CREATE_UND_SCRIPT);
-        System.out.println(UND_FILE);
+        String lastType = "";
+        for (String s: output.split("\\?")) {
+            if (s.startsWith("@")) {
+                lastType = s.substring(1);
+            } else if (!s.trim().equals("")){
+                String[] location = s.split(";");
 
-        ProcessBuilder processBuilder = new ProcessBuilder(CREATE_UND_SCRIPT, UND_FILE, "/Users/wrpinheiro/mystuff/crossover/dead-code-detection/examples/simple-example");
-        processBuilder.environment().put("SCITOOLS_PATH", "/Applications/scitools/bin/macosx/");
+                DeadCodeIssue deadCodeIssue = parseDeadCodeIssue(lastType, location);
 
-        Process p = processBuilder.start();
+                System.out.println(deadCodeIssue);
+            }
+        }
+    }
 
-        BufferedReader output = new BufferedReader(new InputStreamReader(p.getInputStream()));
-        BufferedReader error = new BufferedReader(new InputStreamReader(p.getErrorStream()));
-        String outputLine;
-        String errorLine;
-
-        while ((outputLine = output.readLine()) != null)
-            System.out.println(outputLine);
-
-        while ((errorLine = error.readLine()) != null)
-            System.out.println(errorLine);
-
-        System.out.println("====> Process output: ");
-        System.out.println(p.exitValue());
-
+    private static DeadCodeIssue parseDeadCodeIssue(String kind, String[] location) {
+        return DeadCodeIssue.builder()
+                .kind(kind)
+                .filename(location[2].trim())
+                .fromLine(Integer.valueOf(location[4].trim()))
+                .toLine(Integer.valueOf(location[5].trim()))
+                .ref(location[0].trim())
+                .build();
     }
 }
+
+

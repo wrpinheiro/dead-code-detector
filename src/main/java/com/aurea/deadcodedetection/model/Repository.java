@@ -39,7 +39,7 @@ public class Repository {
 
     private String repositoryDescription;
 
-    private List<CodeSmell> codeSmells;
+    private List<DeadCodeIssue> deadCodeIssues;
 
     public String getOwner() {
         Pattern pattern = pattern = Pattern.compile(".*[/:](.*)/.*\\.git");

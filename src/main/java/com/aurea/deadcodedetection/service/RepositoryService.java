@@ -8,7 +8,7 @@ import java.util.List;
  * Created by wrpinheiro on 3/23/17.
  */
 public interface RepositoryService {
-    Repository addRepository(String name, String url);
+    Repository addRepository(String url);
 
     List<Repository> findAll();
 
