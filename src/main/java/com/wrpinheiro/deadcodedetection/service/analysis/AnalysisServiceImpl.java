@@ -10,16 +10,15 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+
+import static java.util.Arrays.asList;
 
 /**
  * Created by wrpinheiro on 3/24/17.
@@ -56,22 +55,73 @@ public class AnalysisServiceImpl implements AnalysisService {
 
             repository.setStatus(AnalysisStatus.COMPLETED);
             repository.setProcessedAt(new Date());
-        } catch (AnalysisException ex) {
+
+            log.info("Finished analysis for repository {}", repository.getName());
+        } catch (Exception ex) {
+            log.info("Error analyzing repository {}", repository.getName());
+            log.debug("Error analyzing repository", ex);
             repository.setErrorMessage(ex.getMessage());
             repository.setStatus(AnalysisStatus.FAILED);
         }
-
-        log.info("Finished analysis for repository {}", repository.getName());
     }
 
-    private DeadCodeIssue parseDeadCodeIssue(String kind, String[] location) {
-        return DeadCodeIssue.builder()
-                .kind(kind)
-                .filename(location[2].trim())
-                .fromLine(Integer.valueOf(location[4].trim()))
-                .toLine(Integer.valueOf(location[5].trim()))
-                .ref(location[0].trim())
-                .build();
+    private Path createUDBFile(Repository repository, Path repositoryDir, String dataDir) {
+        log.info("Creating UDB file for repository {}", repository.getName());
+
+        final String UND_EXECUTABLE = new File(scitoolsHome, "und").getAbsolutePath();
+        final String UDB_FILE = dataDir + String.format("%s.udb", repository.getName());
+
+        try {
+            log.debug(String.join(" ", UND_EXECUTABLE, "create", "-db", UDB_FILE, "-languages",
+                    repository.getGithubRepository().getLanguage().getStrValue(), "add", repositoryDir.toString(),
+                    "analyze"));
+
+            ProcessUtils.ProcessOutput output = ProcessUtils.runProcess(ProcessUtils.ProcessCommand.builder()
+                    .commands(asList(UND_EXECUTABLE, "create", "-db", UDB_FILE, "-languages", repository
+                                    .getGithubRepository().getLanguage().getStrValue(), "add", repositoryDir.toString(),
+                            "analyze")).timeout(60).build());
+
+            if (output.getExitCode() != 0) {
+                log.info("Error creating UDB file for repository: {}.", repository.getName());
+
+                String logs = String.format("\n\nStdout: %s\n\nStderr: %s\n\n", output.getStdout(), output.getStderr());
+                log.error("Error creating UDB file\n{}", logs);
+
+                throw new AnalysisException("Error creating UDB file: " + UDB_FILE);
+            }
+
+            log.info("Finished creation of UDB file for repository: {}", repository.getName());
+
+            return Paths.get(UDB_FILE);
+        } catch (Exception ex) {
+            log.error("Error creating UDB file {}. Message: {}", UDB_FILE, ex.getMessage());
+            throw new AnalysisException("Error creating UDB file" + UDB_FILE + ". Message: " + ex.getMessage());
+        }
+    }
+
+    private String checkDeadCodeAnalysis(Repository repository, Path udbFile) {
+        log.info("Running script to find dead code in repository {}", repository.getName());
+
+        final String UPERL_FILE = scitoolsHome + "/uperl";
+        final String UNUSED_CODE_SCRIPT = scriptsDir + "/acjf_unused_modified.pl";
+
+        try {
+            ProcessUtils.ProcessOutput output = ProcessUtils.runProcess(ProcessUtils.ProcessCommand.builder()
+                    .commands(asList(UPERL_FILE, UNUSED_CODE_SCRIPT, "-db",
+                            udbFile.toAbsolutePath().toString(), "-byKind")).timeout(60).build());
+
+            log.debug("Finished algorithm to detect dead code in repository: {}", repository.getName());
+
+            if (output.getExitCode() != 0) {
+                log.error("Error running algorithm to detect dead code in repository {}:\n{}", repository.getName(), output.getStderr());
+                throw new AnalysisException("Error running algorithm to detect dead code.");
+            }
+
+            return output.getStdout();
+        } catch (Exception ex) {
+            log.error("Error running algorithm to detect dead code in repository {}:\n{}", repository.getName(), ex.getMessage());
+            throw new AnalysisException("Error running algorithm to detect dead code: {}" + ex.getMessage());
+        }
     }
 
     /**
@@ -96,13 +146,15 @@ public class AnalysisServiceImpl implements AnalysisService {
         List<DeadCodeIssue> deadCodeIssues = new ArrayList<>();
 
         String lastType = "";
-        for (String s: deadCodeOutput.split("\\?")) {
-            if (s.startsWith("@")) {
-                lastType = s.substring(1);
-            } else if (!s.trim().equals("")){
-                String[] location = s.split(";");
+        String line;
+        for (String str: deadCodeOutput.split("\\?")) {
+            line = str.trim();
+            if (line.startsWith("@")) {
+                lastType = line.substring(1);
+            } else if (!line.equals("")){
+                String[] location = line.split(";");
 
-                deadCodeIssues.add(parseDeadCodeIssue(lastType, location));
+                deadCodeIssues.add(deadCodeLocationToInstance(lastType, location));
             }
         }
 
@@ -111,88 +163,13 @@ public class AnalysisServiceImpl implements AnalysisService {
         repository.setDeadCodeIssues(deadCodeIssues);
     }
 
-    private String checkDeadCodeAnalysis(Repository repository, Path udbFile) {
-        log.info("Checking dead code for repository {}", repository.getName());
-
-        final String UPERL_FILE = scitoolsHome + "/uperl";
-        final String UNUSED_CODE_SCRIPT = scriptsDir + "/acjf_unused_modified.pl";
-
-        try {
-            ProcessBuilder processBuilder = new ProcessBuilder(UPERL_FILE, UNUSED_CODE_SCRIPT, "-db",
-                    udbFile.toAbsolutePath().toString(), "-byKind");
-
-            Process p = processBuilder.start();
-
-            BufferedReader stdout = new BufferedReader(new InputStreamReader(p.getInputStream()));
-            BufferedReader stderr = new BufferedReader(new InputStreamReader(p.getErrorStream()));
-            String line;
-
-            StringBuilder errorLog = new StringBuilder();
-            StringBuilder outputLog = new StringBuilder();
-
-            while ((line = stdout.readLine()) != null) {
-                outputLog.append(line);
-            }
-
-            while ((line = stderr.readLine()) != null) {
-                errorLog.append(line);
-            }
-
-            log.debug("Finished algorithm to detect dead code in repository: {}", repository.getName());
-
-            if (p.waitFor() != 0) {
-                log.error("Error running algorithm to detect dead code in repository {}:\n{}", repository.getName(), errorLog);
-                throw new AnalysisException("Error running algorithm to detect dead code.");
-            }
-
-            return outputLog.toString();
-        } catch (IOException | InterruptedException | RuntimeException ex) {
-            log.error("Error running algorithm to detect dead code in repository {}:\n{}", repository.getName(), ex.getMessage());
-            throw new AnalysisException("Error running algorithm to detect dead code: {}" + ex.getMessage());
-        }
-    }
-
-    private Path createUDBFile(Repository repository, Path repositoryDir, String dataDir) {
-        log.info("Creating UDB file for repository {}", repository.getName());
-
-        final String UDB_FILE = dataDir + String.format("%s.udb", repository.getName());
-
-        try {
-            log.debug("===> " + String.join(" ", new File(scitoolsHome, "und").getAbsolutePath(),
-                    "create", "-db", UDB_FILE, "-languages", repository.getGithubRepository().getLanguage().getStrValue(),
-                    "add", repositoryDir.toString(), "analyze"));
-
-            ProcessBuilder processBuilder = new ProcessBuilder(new File(scitoolsHome, "und").getAbsolutePath(),
-                    "create", "-db", UDB_FILE, "-languages", repository.getGithubRepository().getLanguage().getStrValue(),
-                    "add", repositoryDir.toString(), "analyze");
-
-            Process p = processBuilder.start();
-
-            BufferedReader stdout = new BufferedReader(new InputStreamReader(p.getInputStream()));
-            BufferedReader stderr = new BufferedReader(new InputStreamReader(p.getErrorStream()));
-            String line;
-
-            StringBuilder errorLog = new StringBuilder();
-
-            while ((line = stdout.readLine()) != null) {
-                System.out.println(line);
-            }
-
-            while ((line = stderr.readLine()) != null) {
-                errorLog.append(line);
-            }
-
-            log.debug("Finished creation of UDB file for repository: {}", repository.getName());
-
-            if (p.waitFor() != 0) {
-                log.error("Error creating UDB file\n{}", errorLog);
-                throw new AnalysisException("Error creating UDB file: " );
-            }
-
-            return Paths.get(UDB_FILE);
-        } catch (IOException | InterruptedException | RuntimeException ex) {
-            log.error("Error creating UDB file\n{}", ex.getMessage());
-            throw new AnalysisException("Error creating UDB file" + ex.getMessage());
-        }
+    private DeadCodeIssue deadCodeLocationToInstance(String kind, String[] location) {
+        return DeadCodeIssue.builder()
+                .kind(kind)
+                .filename(location[2].trim())
+                .fromLine(Integer.valueOf(location[4].trim()))
+                .toLine(Integer.valueOf(location[5].trim()))
+                .ref(location[0].trim())
+                .build();
     }
 }

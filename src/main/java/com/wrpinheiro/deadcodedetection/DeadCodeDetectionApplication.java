@@ -12,13 +12,6 @@ import javax.annotation.PostConstruct;
 @EnableAsync
 public class DeadCodeDetectionApplication {
 
-	@Autowired
-	private RepositoryDAO repositoryDAO;
-
-	@PostConstruct
-	public void init() {
-	}
-
 	public static void main(String[] args) {
 		SpringApplication.run(DeadCodeDetectionApplication.class, args);
 	}
