@@ -32,7 +32,7 @@ public class RepositoryServiceImpl implements RepositoryService {
         }
 
         Repository repository = Repository.builder()
-                .githubRository(GithubRepository.builder().url(url).language(language).build())
+                .githubRepository(GithubRepository.builder().url(url).language(language).build())
                 .name(name)
                 .status(AnalysisStatus.ADDED)
                 .createdAt(new Date())

@@ -48,7 +48,7 @@ public class AnalysisServiceImpl implements AnalysisService {
     @Override
     @Async
     public void analyze(Repository repository) {
-        log.info("Starting analysis for repository {}", repository.getGithubRepository().getUrl());
+        log.info("Starting analysis for repository {}", repository.getName());
 
         repository.setStatus(AnalysisStatus.PROCESSING);
 
@@ -66,7 +66,7 @@ public class AnalysisServiceImpl implements AnalysisService {
             repository.setStatus(AnalysisStatus.FAILED);
         }
 
-        log.info("Finished analysis for repository {}", repository.getGithubRepository().getUrl());
+        log.info("Finished analysis for repository {}", repository.getName());
     }
 
     private DeadCodeIssue parseDeadCodeIssue(String kind, String[] location) {
@@ -96,7 +96,7 @@ public class AnalysisServiceImpl implements AnalysisService {
      * @param deadCodeOutput
      */
     private void parseDeadCodeIssues(Repository repository, String deadCodeOutput) {
-        log.info("Creating instances of dead code issues for repository {}", repository.getGithubRepository().getUrl());
+        log.info("Creating instances of dead code issues for repository {}", repository.getName());
 
         List<DeadCodeIssue> deadCodeIssues = new ArrayList<>();
 
@@ -117,7 +117,7 @@ public class AnalysisServiceImpl implements AnalysisService {
     }
 
     private String checkDeadCodeAnalysis(Repository repository, Path udbFile) {
-        log.info("Checking dead code for repository {}", repository.getGithubRepository().getUrl());
+        log.info("Checking dead code for repository {}", repository.getName());
 
         final String UPERL_FILE = scitoolsHome + "/uperl";
         final String UNUSED_CODE_SCRIPT = scriptsDir + "/acjf_unused_modified.pl";
@@ -143,25 +143,24 @@ public class AnalysisServiceImpl implements AnalysisService {
                 errorLog.append(line);
             }
 
-            log.debug("Finished algorithm to detect dead code in repository: {}", repository.getGithubRepository().getUrl());
+            log.debug("Finished algorithm to detect dead code in repository: {}", repository.getName());
 
             if (p.waitFor() != 0) {
-                log.error("Error running algorithm to detect dead code in repository {}:\n{}", repository.getGithubRepository().getUrl(), errorLog);
+                log.error("Error running algorithm to detect dead code in repository {}:\n{}", repository.getName(), errorLog);
                 throw new AnalysisException("Error running algorithm to detect dead code.");
             }
 
             return outputLog.toString();
         } catch (IOException | InterruptedException | RuntimeException ex) {
-            log.error("Error running algorithm to detect dead code in repository {}:\n{}", repository.getGithubRepository().getUrl(), ex.getMessage());
+            log.error("Error running algorithm to detect dead code in repository {}:\n{}", repository.getName(), ex.getMessage());
             throw new AnalysisException("Error running algorithm to detect dead code: {}" + ex.getMessage());
         }
     }
 
     private Path createUDBFile(Repository repository, Path repositoryDir, String dataDir) {
-        log.info("Creating UDB file for repository {}", repository.getGithubRepository().getUrl());
+        log.info("Creating UDB file for repository {}", repository.getName());
 
-        final String UDB_FILE = dataDir + String.format("%s-%s.udb", repository.getGithubRepository().getOwner(),
-                repository.getGithubRepository().getName());
+        final String UDB_FILE = dataDir + String.format("%s.udb", repository.getName());
 
         try {
             log.debug("===> " + String.join(" ", new File(scitoolsHome, "und").getAbsolutePath(),
@@ -188,7 +187,7 @@ public class AnalysisServiceImpl implements AnalysisService {
                 errorLog.append(line);
             }
 
-            log.debug("Finished creation of UDB file for repository: {}", repository.getGithubRepository().getUrl());
+            log.debug("Finished creation of UDB file for repository: {}", repository.getName());
 
             if (p.waitFor() != 0) {
                 log.error("Error creating UDB file\n{}", errorLog);
@@ -206,9 +205,11 @@ public class AnalysisServiceImpl implements AnalysisService {
         log.info("Cloning repository {}", repository.getGithubRepository().getUrl());
 
         try {
-            File repositoryDir = this.createRepositoryDirectory(repository.getGithubRepository().getOwner(),
-                    repository.getGithubRepository().getName());
+            File repositoryDir = this.createRepositoryDirectory(repository.getName());
 
+            log.info("Repository {} will be cloned to directory {}", repository.getGithubRepository().getUrl(),
+                    repositoryDir.getAbsolutePath());
+            
             Git.cloneRepository()
                     .setBare(false)
                     .setURI(repository.getGithubRepository().getUrl())
@@ -219,7 +220,7 @@ public class AnalysisServiceImpl implements AnalysisService {
 
             // the analysis doesn't required the .git directory.
             removeDotGitDir(repositoryDir);
-            new File(repositoryDir, repository.getGithubRepository().getName()).delete();
+//            new File(repositoryDir, repository.getGithubRepository().getName()).delete();
 
             return repositoryDir.toPath();
         } catch(GitAPIException | JGitInternalException | IOException ex) {
@@ -233,10 +234,10 @@ public class AnalysisServiceImpl implements AnalysisService {
         deleteSubDirectoryStructure(gitDir);
     }
 
-    private File createRepositoryDirectory(String owner, String repository) throws IOException {
+    private File createRepositoryDirectory(String name) throws IOException {
         String repositoriesDirectory = dataDir + REPOSITORIES_SUBDIR;
 
-        Path path = Paths.get(repositoriesDirectory, owner + "/");
+        Path path = Paths.get(repositoriesDirectory, name + "/");
 
         if (Files.exists(path)) {
             deleteSubDirectoryStructure(path);
@@ -244,7 +245,7 @@ public class AnalysisServiceImpl implements AnalysisService {
 
         Files.createDirectories(path);
 
-        return Paths.get(repositoriesDirectory, owner, repository).toFile();
+        return Paths.get(repositoriesDirectory, name).toFile();
     }
 
     private void deleteSubDirectoryStructure(Path path) throws IOException {
