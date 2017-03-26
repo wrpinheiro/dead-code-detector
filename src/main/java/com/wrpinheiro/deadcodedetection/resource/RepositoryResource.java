@@ -40,7 +40,7 @@ public class RepositoryResource {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The repository created"),
             @ApiResponse(code = 409, message = "A repository with the URL already exists. If you want to check the " +
-                    "dead code execute a POST to the endpoint repository/{repository.id}/checkCode")
+                    "dead code execute a POST to the endpoint repository/{repository.id}/analyze")
     })
     @POST
     public Repository addRepository(@ApiParam(value = "Repository to be added and analyzed. The supported languages are:" +
@@ -70,14 +70,14 @@ public class RepositoryResource {
     }
 
     @POST
-    @ApiOperation(value = "Analyse a repository to find dead code.", response = SimpleRepositoryResponse.class)
+    @ApiOperation(value = "Analyze a repository to find dead code.", response = SimpleRepositoryResponse.class)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The repository is going to be analyzed (search for dead code"),
             @ApiResponse(code = 404, message = "A repository with the ID requested could not be found"),
             @ApiResponse(code = 412, message = "Can't analyze a repository already being analyzed")
     })
-    @Path("{repositoryId}/checkCode")
-    public Repository checkDeadCodeIssues(@ApiParam(name = "repositoryId", value = "The repository id to find dead " +
+    @Path("{repositoryId}/analyze")
+    public Repository analyzeRepository(@ApiParam(name = "repositoryId", value = "The repository id to find dead " +
             "code issues") @PathParam("repositoryId") Long repositoryId) {
         try {
             Repository repository = repositoryService.findById(repositoryId);

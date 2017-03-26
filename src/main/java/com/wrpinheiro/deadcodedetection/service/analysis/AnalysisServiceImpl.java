@@ -163,12 +163,15 @@ public class AnalysisServiceImpl implements AnalysisService {
     private Path createUDBFile(Repository repository, Path repositoryDir, String dataDir) {
         log.info("Creating UDB file for repository {}", repository.getUrl());
 
-        final String CREATE_UND_SCRIPT = scriptsDir + "create_und.sh";
         final String UDB_FILE = dataDir + String.format("%s-%s.udb", repository.getOwner(), repository.getName());
 
         try {
+            log.debug("===> " + String.join(" ", new File(scitoolsHome, "und").getAbsolutePath(),
+                    "create", "-db", UDB_FILE, "-languages", repository.getLanguage().getStrValue(), "add", repositoryDir.toString(),
+                    "analyze"));
+
             ProcessBuilder processBuilder = new ProcessBuilder(new File(scitoolsHome, "und").getAbsolutePath(),
-                    "-db", UDB_FILE, "-languages", repository.getLanguage().getStrValue(), "add", repositoryDir.toString(),
+                    "create", "-db", UDB_FILE, "-languages", repository.getLanguage().getStrValue(), "add", repositoryDir.toString(),
                     "analyze");
 
             Process p = processBuilder.start();
