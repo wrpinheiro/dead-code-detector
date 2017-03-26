@@ -1,10 +1,10 @@
-package com.wrpinheiro.deadcodedetection.resource;
+package com.wrpinheiro.deadcodedetection.controller;
 
 import com.wrpinheiro.deadcodedetection.exceptions.DuplicatedEntity;
 import com.wrpinheiro.deadcodedetection.exceptions.InvalidStateException;
 import com.wrpinheiro.deadcodedetection.model.Repository;
-import com.wrpinheiro.deadcodedetection.resource.dto.RepositoryRequest;
-import com.wrpinheiro.deadcodedetection.resource.dto.SimpleRepositoryResponse;
+import com.wrpinheiro.deadcodedetection.controller.dto.RepositoryRequest;
+import com.wrpinheiro.deadcodedetection.controller.dto.SimpleRepositoryResponse;
 import com.wrpinheiro.deadcodedetection.service.RepositoryService;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,10 +20,10 @@ import java.util.stream.Collectors;
  */
 @Component
 @Path("/repository")
-@Produces("application/vnd.dcd.v1+json")
-@Consumes("application/vnd.dcd.v1+json")
-@Api(value = "Repository resource (v1 - version in header)", produces = "application/vnd.dcd.v1+json")
-public class RepositoryResource {
+@Produces("application/json")
+@Consumes("application/json")
+@Api(value = "Repository controller (v1 - version in header)", produces = "application/json")
+public class RepositoryController {
     @Autowired
     private RepositoryService repositoryService;
 

@@ -1,5 +1,7 @@
 package com.wrpinheiro.deadcodedetection.model;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.Builder;
 import lombok.Data;
 
@@ -9,6 +11,7 @@ import java.util.regex.Pattern;
 /**
  * Created by wrpinheiro on 3/26/17.
  */
+@JsonDeserialize(builder = GithubRepository.GithubRepositoryBuilder.class)
 @Data
 @Builder
 public class GithubRepository {
@@ -34,5 +37,9 @@ public class GithubRepository {
         return matcher.find() ?
                 matcher.group(1) :
                 null;
+    }
+
+    @JsonPOJOBuilder(withPrefix = "")
+    public static final class GithubRepositoryBuilder {
     }
 }

@@ -1,4 +1,4 @@
-package com.wrpinheiro.deadcodedetection.resource.dto;
+package com.wrpinheiro.deadcodedetection.controller.dto;
 
 import com.wrpinheiro.deadcodedetection.model.Language;
 import io.swagger.annotations.ApiModelProperty;
