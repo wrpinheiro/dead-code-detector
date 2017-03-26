@@ -4,12 +4,10 @@ import com.wrpinheiro.deadcodedetection.dao.RepositoryDAO;
 import com.wrpinheiro.deadcodedetection.exceptions.DuplicatedEntity;
 import com.wrpinheiro.deadcodedetection.exceptions.InvalidStateException;
 import com.wrpinheiro.deadcodedetection.model.AnalysisStatus;
+import com.wrpinheiro.deadcodedetection.model.GithubRepository;
 import com.wrpinheiro.deadcodedetection.model.Language;
 import com.wrpinheiro.deadcodedetection.model.Repository;
 import com.wrpinheiro.deadcodedetection.service.analysis.AnalysisService;
-import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.EnumUtils;
-import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,15 +28,16 @@ public class RepositoryServiceImpl implements RepositoryService {
     @Autowired
     private AnalysisService analysisService;
 
-    public Repository addRepository(String url, Language language) {
-        if (repositoryDAO.findByUrl(url).isPresent()) {
+    public Repository addRepository(String name, String url, Language language) {
+        if (repositoryDAO.findByName(url).isPresent()) {
             throw new DuplicatedEntity(String.format("Repository with URL %s already exists. If you want to check the " +
                     "dead code int the available repository, execute the endpoint repository/{repository.id}/checkCode", url));
         }
 
         Repository repository = Repository.builder()
-                .url(url)
-                .language(defaultIfNull(language, JAVA))
+                .githubRository(GithubRepository.builder().url(url).language(language).build())
+//                .name(name)
+//                .language(defaultIfNull(language, JAVA))
                 .status(AnalysisStatus.ADDED)
                 .createdAt(new Date())
                 .build();

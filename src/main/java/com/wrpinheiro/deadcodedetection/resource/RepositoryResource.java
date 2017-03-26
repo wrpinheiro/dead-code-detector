@@ -46,7 +46,8 @@ public class RepositoryResource {
     public Repository addRepository(@ApiParam(value = "Repository to be added and analyzed. The supported languages are:" +
             "JAVA, ADA, CPP and FORTRAN") RepositoryRequest repositoryRequest) {
         try {
-            return repositoryService.addRepository(repositoryRequest.getUrl(), repositoryRequest.getLanguage());
+            return repositoryService.addRepository(repositoryRequest.getName(), repositoryRequest.getUrl(),
+                    repositoryRequest.getLanguage());
         } catch(DuplicatedEntity ex) {
             throw new WebApplicationException(ex, Response.Status.CONFLICT);
         }
@@ -58,7 +59,7 @@ public class RepositoryResource {
             @ApiResponse(code = 404, message = "Repository with requested ID not found"),})
     @GET
     @Path("/{repositoryId}")
-    public Repository getRepositoryCodeSmellsAnalysis(@ApiParam(name = "repositoryId", value = "the repository Id to search")
+    public Repository getRepositoryIssues(@ApiParam(name = "repositoryId", value = "the repository Id to search")
                                                  @PathParam("repositoryId") Long repositoryId) {
         Repository repository = repositoryService.findById(repositoryId);
 

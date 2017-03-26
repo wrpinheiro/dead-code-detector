@@ -15,7 +15,9 @@ public interface RepositoryDAO {
 
     Repository findById(Long repositoryId);
 
-    Optional<Repository> findByUrl(String url);
+//    Optional<Repository> findByUrl(String url);
+
+    Optional<Repository> findByName(String name);
 
     void remove(Long id);
 }

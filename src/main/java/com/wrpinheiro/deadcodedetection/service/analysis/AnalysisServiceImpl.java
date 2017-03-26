@@ -11,11 +11,10 @@ import org.eclipse.jgit.api.errors.JGitInternalException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.zeroturnaround.exec.ProcessExecutor;
+import org.zeroturnaround.exec.ProcessResult;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -24,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeoutException;
 
 import static java.util.Collections.singletonList;
 import static java.util.Comparator.reverseOrder;
@@ -51,7 +51,7 @@ public class AnalysisServiceImpl implements AnalysisService {
     @Override
     @Async
     public void analyze(Repository repository) {
-        log.info("Starting analysis for repository {}", repository.getUrl());
+        log.info("Starting analysis for repository {}", repository.getGithubRository().getUrl());
 
         repository.setStatus(AnalysisStatus.PROCESSING);
 
@@ -69,7 +69,7 @@ public class AnalysisServiceImpl implements AnalysisService {
             repository.setStatus(AnalysisStatus.FAILED);
         }
 
-        log.info("Finished analysis for repository {}", repository.getUrl());
+        log.info("Finished analysis for repository {}", repository.getGithubRository().getUrl());
     }
 
     private DeadCodeIssue parseDeadCodeIssue(String kind, String[] location) {
@@ -99,7 +99,7 @@ public class AnalysisServiceImpl implements AnalysisService {
      * @param deadCodeOutput
      */
     private void parseDeadCodeIssues(Repository repository, String deadCodeOutput) {
-        log.info("Creating instances of dead code issues for repository {}", repository.getUrl());
+        log.info("Creating instances of dead code issues for repository {}", repository.getGithubRository().getUrl());
 
         List<DeadCodeIssue> deadCodeIssues = new ArrayList<>();
 
@@ -120,7 +120,7 @@ public class AnalysisServiceImpl implements AnalysisService {
     }
 
     private String checkDeadCodeAnalysis(Repository repository, Path udbFile) {
-        log.info("Checking dead code for repository {}", repository.getUrl());
+        log.info("Checking dead code for repository {}", repository.getGithubRository().getUrl());
 
         final String UPERL_FILE = scitoolsHome + "/uperl";
         final String UNUSED_CODE_SCRIPT = scriptsDir + "/acjf_unused_modified.pl";
@@ -146,33 +146,34 @@ public class AnalysisServiceImpl implements AnalysisService {
                 errorLog.append(line);
             }
 
-            log.debug("Finished algorithm to detect dead code in repository: {}", repository.getUrl());
+            log.debug("Finished algorithm to detect dead code in repository: {}", repository.getGithubRository().getUrl());
 
             if (p.waitFor() != 0) {
-                log.error("Error running algorithm to detect dead code in repository {}:\n{}", repository.getUrl(), errorLog);
+                log.error("Error running algorithm to detect dead code in repository {}:\n{}", repository.getGithubRository().getUrl(), errorLog);
                 throw new AnalysisException("Error running algorithm to detect dead code.");
             }
 
             return outputLog.toString();
         } catch (IOException | InterruptedException | RuntimeException ex) {
-            log.error("Error running algorithm to detect dead code in repository {}:\n{}", repository.getUrl(), ex.getMessage());
+            log.error("Error running algorithm to detect dead code in repository {}:\n{}", repository.getGithubRository().getUrl(), ex.getMessage());
             throw new AnalysisException("Error running algorithm to detect dead code: {}" + ex.getMessage());
         }
     }
 
     private Path createUDBFile(Repository repository, Path repositoryDir, String dataDir) {
-        log.info("Creating UDB file for repository {}", repository.getUrl());
+        log.info("Creating UDB file for repository {}", repository.getGithubRository().getUrl());
 
-        final String UDB_FILE = dataDir + String.format("%s-%s.udb", repository.getOwner(), repository.getName());
+        final String UDB_FILE = dataDir + String.format("%s-%s.udb", repository.getGithubRository().getOwner(),
+                repository.getGithubRository().getName());
 
         try {
             log.debug("===> " + String.join(" ", new File(scitoolsHome, "und").getAbsolutePath(),
-                    "create", "-db", UDB_FILE, "-languages", repository.getLanguage().getStrValue(), "add", repositoryDir.toString(),
-                    "analyze"));
+                    "create", "-db", UDB_FILE, "-languages", repository.getGithubRository().getLanguage().getStrValue(),
+                    "add", repositoryDir.toString(), "analyze"));
 
             ProcessBuilder processBuilder = new ProcessBuilder(new File(scitoolsHome, "und").getAbsolutePath(),
-                    "create", "-db", UDB_FILE, "-languages", repository.getLanguage().getStrValue(), "add", repositoryDir.toString(),
-                    "analyze");
+                    "create", "-db", UDB_FILE, "-languages", repository.getGithubRository().getLanguage().getStrValue(),
+                    "add", repositoryDir.toString(), "analyze");
 
             Process p = processBuilder.start();
 
@@ -190,7 +191,7 @@ public class AnalysisServiceImpl implements AnalysisService {
                 errorLog.append(line);
             }
 
-            log.debug("Finished creation of UDB file for repository: {}", repository.getUrl());
+            log.debug("Finished creation of UDB file for repository: {}", repository.getGithubRository().getUrl());
 
             if (p.waitFor() != 0) {
                 log.error("Error creating UDB file\n{}", errorLog);
@@ -205,14 +206,15 @@ public class AnalysisServiceImpl implements AnalysisService {
     }
 
     private Path cloneGitHubRepository(Repository repository) {
-        log.info("Cloning repository {}", repository.getUrl());
+        log.info("Cloning repository {}", repository.getGithubRository().getUrl());
 
         try {
-            File repositoryDir = this.createRepositoryDirectory(repository.getOwner(), repository.getName());
+            File repositoryDir = this.createRepositoryDirectory(repository.getGithubRository().getOwner(),
+                    repository.getGithubRository().getName());
 
             Git.cloneRepository()
                     .setBare(false)
-                    .setURI(repository.getUrl())
+                    .setURI(repository.getGithubRository().getUrl())
                     .setDirectory(repositoryDir)
                     .setBranchesToClone(singletonList(BRANCH_TO_ANALYZE))
                     .setCloneSubmodules(false)
@@ -220,7 +222,7 @@ public class AnalysisServiceImpl implements AnalysisService {
 
             // the analysis doesn't required the .git directory.
             removeDotGitDir(repositoryDir);
-            new File(repositoryDir, repository.getName()).delete();
+            new File(repositoryDir, repository.getGithubRository().getName()).delete();
 
             return repositoryDir.toPath();
         } catch(GitAPIException | JGitInternalException | IOException ex) {

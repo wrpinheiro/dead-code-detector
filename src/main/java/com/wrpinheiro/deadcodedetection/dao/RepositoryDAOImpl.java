@@ -3,6 +3,7 @@ package com.wrpinheiro.deadcodedetection.dao;
 import com.wrpinheiro.deadcodedetection.model.Repository;
 import org.springframework.stereotype.Component;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -30,7 +31,8 @@ public class RepositoryDAOImpl implements RepositoryDAO {
 
     @Override
     public List<Repository> findAll() {
-        return repositories.values().stream().sorted(comparing(Repository::getUrl))
+        return repositories.values().stream().sorted(
+                Comparator.comparing(repo -> repo.getGithubRository().getUrl()))
                 .collect(toList());
     }
 
@@ -40,10 +42,16 @@ public class RepositoryDAOImpl implements RepositoryDAO {
     }
 
     @Override
-    public Optional<Repository> findByUrl(String url) {
+    public Optional<Repository> findByName(String name) {
         return repositories.values()
-                .stream().filter(repo -> repo.getUrl().equals(url)).findFirst();
+                .stream().filter(repo -> repo.getGithubRository().equals(name)).findFirst();
     }
+
+//    @Override
+//    public Optional<Repository> findByUrl(String url) {
+//        return repositories.values()
+//                .stream().filter(repo -> repo.getUrl().equals(url)).findFirst();
+//    }
 
     @Override
     public void remove(Long id) {
