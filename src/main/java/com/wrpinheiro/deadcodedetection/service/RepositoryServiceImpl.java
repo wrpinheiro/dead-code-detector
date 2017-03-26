@@ -14,9 +14,6 @@ import org.springframework.stereotype.Service;
 import java.util.Date;
 import java.util.List;
 
-import static com.wrpinheiro.deadcodedetection.model.Language.JAVA;
-import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
-
 /**
  * Created by wrpinheiro on 3/24/17.
  */
@@ -29,15 +26,14 @@ public class RepositoryServiceImpl implements RepositoryService {
     private AnalysisService analysisService;
 
     public Repository addRepository(String name, String url, Language language) {
-        if (repositoryDAO.findByName(url).isPresent()) {
-            throw new DuplicatedEntity(String.format("Repository with URL %s already exists. If you want to check the " +
-                    "dead code int the available repository, execute the endpoint repository/{repository.id}/checkCode", url));
+        if (repositoryDAO.findByName(name).isPresent()) {
+            throw new DuplicatedEntity(String.format("Repository with name %s already exists. If you want to analyze this" +
+                    "repository execute the endpoint repository/{repository.name}/analyze", url));
         }
 
         Repository repository = Repository.builder()
                 .githubRository(GithubRepository.builder().url(url).language(language).build())
-//                .name(name)
-//                .language(defaultIfNull(language, JAVA))
+                .name(name)
                 .status(AnalysisStatus.ADDED)
                 .createdAt(new Date())
                 .build();
@@ -69,7 +65,12 @@ public class RepositoryServiceImpl implements RepositoryService {
     }
 
     @Override
-    public Repository findById(Long id) {
-        return repositoryDAO.findById(id);
+    public Repository findByName(String repositoryName) {
+        return repositoryDAO.findByName(repositoryName).orElse(null);
     }
+
+//    @Override
+//    public Repository findById(Long id) {
+//        return repositoryDAO.findById(id);
+//    }
 }

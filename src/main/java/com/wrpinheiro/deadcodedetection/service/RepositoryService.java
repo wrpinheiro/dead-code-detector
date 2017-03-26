@@ -13,7 +13,9 @@ public interface RepositoryService {
 
     List<Repository> findAll();
 
-    Repository findById(Long id);
+//    Repository findById(Long id);
+
+    Repository findByName(String repositoryName);
 
     void analyze(Repository newRepository);
 

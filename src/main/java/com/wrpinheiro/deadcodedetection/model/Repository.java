@@ -15,6 +15,7 @@ import java.util.regex.Pattern;
 @Builder
 public class Repository {
     private Long id;
+    private String name;
     private AnalysisStatus status;
     private String errorMessage;
 
@@ -23,7 +24,7 @@ public class Repository {
      */
     private Date createdAt;
 
-    private GithubRepository githubRository;
+    private GithubRepository githubRepository;
 
     /**
      * The time the repository was processed

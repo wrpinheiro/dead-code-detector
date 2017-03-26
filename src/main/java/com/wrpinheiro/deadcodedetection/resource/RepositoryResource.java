@@ -40,12 +40,18 @@ public class RepositoryResource {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The repository created"),
             @ApiResponse(code = 409, message = "A repository with the URL already exists. If you want to check the " +
-                    "dead code execute a POST to the endpoint repository/{repository.id}/analyze")
+                    "dead code execute a POST to the endpoint repository/{repository.id}/analyze"),
+            @ApiResponse(code = 412, message = "NAME and URL are required fields")
     })
     @POST
     public Repository addRepository(@ApiParam(value = "Repository to be added and analyzed. The supported languages are:" +
             "JAVA, ADA, CPP and FORTRAN") RepositoryRequest repositoryRequest) {
+
         try {
+            if (repositoryRequest.getName() == null || repositoryRequest.getUrl() == null) {
+                throw new WebApplicationException(Response.Status.PRECONDITION_FAILED);
+            }
+
             return repositoryService.addRepository(repositoryRequest.getName(), repositoryRequest.getUrl(),
                     repositoryRequest.getLanguage());
         } catch(DuplicatedEntity ex) {
@@ -53,15 +59,15 @@ public class RepositoryResource {
         }
     }
 
-    @ApiOperation(value = "List the dead code found in the repository.", response = SimpleRepositoryResponse.class)
+    @ApiOperation(value = "List the dead code issues found in the repository.", response = SimpleRepositoryResponse.class)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The repository created"),
-            @ApiResponse(code = 404, message = "Repository with requested ID not found"),})
+            @ApiResponse(code = 404, message = "Repository with the requested name could not found"),})
     @GET
-    @Path("/{repositoryId}")
-    public Repository getRepositoryIssues(@ApiParam(name = "repositoryId", value = "the repository Id to search")
-                                                 @PathParam("repositoryId") Long repositoryId) {
-        Repository repository = repositoryService.findById(repositoryId);
+    @Path("/{repositoryName}")
+    public Repository getRepositoryIssues(@ApiParam(name = "repositoryName", value = "the repository name to search")
+                                                 @PathParam("repositoryName") String repositoryName) {
+        Repository repository = repositoryService.findByName(repositoryName);
 
         if (repository == null) {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
@@ -77,11 +83,11 @@ public class RepositoryResource {
             @ApiResponse(code = 404, message = "A repository with the ID requested could not be found"),
             @ApiResponse(code = 412, message = "Can't analyze a repository already being analyzed")
     })
-    @Path("{repositoryId}/analyze")
-    public Repository analyzeRepository(@ApiParam(name = "repositoryId", value = "The repository id to find dead " +
-            "code issues") @PathParam("repositoryId") Long repositoryId) {
+    @Path("{repositoryName}/analyze")
+    public Repository analyzeRepository(@ApiParam(name = "repositoryName", value = "The repository id to find dead " +
+            "code issues") @PathParam("repositoryName") String repositoryName) {
         try {
-            Repository repository = repositoryService.findById(repositoryId);
+            Repository repository = repositoryService.findByName(repositoryName);
 
             if (repository == null) {
                 throw new WebApplicationException(Response.Status.NOT_FOUND);
@@ -101,11 +107,11 @@ public class RepositoryResource {
             @ApiResponse(code = 404, message = "The repository could not be found"),
             @ApiResponse(code = 412, message = "Trying to remove a repository while being analyzed"),
     })
-    @Path("{repositoryId}")
-    public Repository removeRepository(@ApiParam(name = "repositoryId", value = "The repository id to find dead " +
-            "code issues") @PathParam("repositoryId") Long repositoryId) {
+    @Path("{repositoryName}")
+    public Repository removeRepository(@ApiParam(name = "repositoryName", value = "The repository name to find dead " +
+            "code issues") @PathParam("repositoryName") String repositoryName) {
         try {
-            Repository repository = repositoryService.findById(repositoryId);
+            Repository repository = repositoryService.findByName(repositoryName);
 
             if (repository == null) {
                 throw new WebApplicationException(Response.Status.NOT_FOUND);

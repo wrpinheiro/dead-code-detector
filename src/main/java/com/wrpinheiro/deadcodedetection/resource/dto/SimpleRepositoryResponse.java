@@ -26,14 +26,12 @@ public class SimpleRepositoryResponse {
 
     public SimpleRepositoryResponse(Repository repository) {
         this.id = repository.getId();
-//        this.name = repository.getName();
-        this.githubRepository = repository.getGithubRository();
+        this.name = repository.getName();
+        this.githubRepository = repository.getGithubRepository();
         this.description = repository.getRepositoryDescription();
-//        this.language = repository.getLanguage();
         this.status = repository.getStatus();
         this.errorMessage = repository.getErrorMessage();
         this.createdAt = repository.getCreatedAt();
         this.processedAt = repository.getProcessedAt();
-//        this.gitHubUrl = repository.getUrl();
     }
 }
