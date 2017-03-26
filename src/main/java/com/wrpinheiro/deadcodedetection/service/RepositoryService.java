@@ -9,11 +9,9 @@ import java.util.List;
  * Created by wrpinheiro on 3/23/17.
  */
 public interface RepositoryService {
-    Repository addRepository(String name, String url, Language language);
+    Repository addRepository(String name, String url, String branch, Language language);
 
     List<Repository> findAll();
-
-//    Repository findById(Long id);
 
     Repository findByName(String repositoryName);
 

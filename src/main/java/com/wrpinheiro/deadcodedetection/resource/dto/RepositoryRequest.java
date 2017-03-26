@@ -18,4 +18,7 @@ public class RepositoryRequest {
     @ApiModelProperty(value = "The language used to analyze the repository", required = false,
             allowableValues = "JAVA, ADA, CPP, FORTRAN")
     private Language language;
+
+    @ApiModelProperty(value = "The branch that will be used to clone the repository", required = false)
+    private String branch;
 }

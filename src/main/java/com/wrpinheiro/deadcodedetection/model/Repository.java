@@ -30,7 +30,7 @@ public class Repository {
      * The time the repository was processed
      */
     private Date processedAt;
-    private String repositoryDescription;
+
     private List<DeadCodeIssue> deadCodeIssues;
 
     public void setStatus(AnalysisStatus status) {

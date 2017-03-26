@@ -8,11 +8,16 @@ import com.wrpinheiro.deadcodedetection.model.GithubRepository;
 import com.wrpinheiro.deadcodedetection.model.Language;
 import com.wrpinheiro.deadcodedetection.model.Repository;
 import com.wrpinheiro.deadcodedetection.service.analysis.AnalysisService;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+
+import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
+import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
 
 /**
  * Created by wrpinheiro on 3/24/17.
@@ -25,14 +30,23 @@ public class RepositoryServiceImpl implements RepositoryService {
     @Autowired
     private AnalysisService analysisService;
 
-    public Repository addRepository(String name, String url, Language language) {
+    private final static String DEFAULT_BRANCH = "master";
+    private static final Language DEFAULT_LANGUAGE = Language.JAVA;
+
+    public Repository addRepository(String name, String url, String branch, Language language) {
         if (repositoryDAO.findByName(name).isPresent()) {
             throw new DuplicatedEntity(String.format("Repository with name %s already exists. If you want to analyze this" +
                     "repository execute the endpoint repository/{repository.name}/analyze", url));
         }
 
         Repository repository = Repository.builder()
-                .githubRepository(GithubRepository.builder().url(url).language(language).build())
+                .githubRepository(
+                        GithubRepository
+                                .builder()
+                                .url(url)
+                                .language(defaultIfNull(language, DEFAULT_LANGUAGE))
+                                .branch(defaultIfBlank(branch, DEFAULT_BRANCH))
+                                .build())
                 .name(name)
                 .status(AnalysisStatus.ADDED)
                 .createdAt(new Date())

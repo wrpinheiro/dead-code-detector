@@ -43,8 +43,6 @@ public class AnalysisServiceImpl implements AnalysisService {
     @Value("${app.analyzer.scitoolsHome}")
     private String scitoolsHome;
 
-    private static final String BRANCH_TO_ANALYZE = "master";
-
     @Override
     @Async
     public void analyze(Repository repository) {
@@ -209,18 +207,17 @@ public class AnalysisServiceImpl implements AnalysisService {
 
             log.info("Repository {} will be cloned to directory {}", repository.getGithubRepository().getUrl(),
                     repositoryDir.getAbsolutePath());
-            
+
             Git.cloneRepository()
                     .setBare(false)
                     .setURI(repository.getGithubRepository().getUrl())
                     .setDirectory(repositoryDir)
-                    .setBranchesToClone(singletonList(BRANCH_TO_ANALYZE))
                     .setCloneSubmodules(false)
+                    .setBranch(repository.getGithubRepository().getBranch())
                     .call();
 
             // the analysis doesn't required the .git directory.
             removeDotGitDir(repositoryDir);
-//            new File(repositoryDir, repository.getGithubRepository().getName()).delete();
 
             return repositoryDir.toPath();
         } catch(GitAPIException | JGitInternalException | IOException ex) {

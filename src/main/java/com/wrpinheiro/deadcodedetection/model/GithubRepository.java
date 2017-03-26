@@ -14,6 +14,7 @@ import java.util.regex.Pattern;
 public class GithubRepository {
     private String url;
     private Language language;
+    private String branch;
 
     public String getOwner() {
         Pattern pattern = pattern = Pattern.compile(".*[/:](.*)/.*\\.git");

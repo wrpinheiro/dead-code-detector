@@ -53,7 +53,7 @@ public class RepositoryResource {
             }
 
             return repositoryService.addRepository(repositoryRequest.getName(), repositoryRequest.getUrl(),
-                    repositoryRequest.getLanguage());
+                    repositoryRequest.getBranch(), repositoryRequest.getLanguage());
         } catch(DuplicatedEntity ex) {
             throw new WebApplicationException(ex, Response.Status.CONFLICT);
         }
