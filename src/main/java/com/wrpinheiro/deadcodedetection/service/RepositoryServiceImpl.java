@@ -8,8 +8,6 @@ import com.wrpinheiro.deadcodedetection.model.GithubRepository;
 import com.wrpinheiro.deadcodedetection.model.Language;
 import com.wrpinheiro.deadcodedetection.model.Repository;
 import com.wrpinheiro.deadcodedetection.service.analysis.AnalysisService;
-import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

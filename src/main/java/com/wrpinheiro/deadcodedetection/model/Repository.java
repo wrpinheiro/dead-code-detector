@@ -7,8 +7,6 @@ import lombok.Data;
 
 import java.util.Date;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Created by wrpinheiro on 3/21/17.

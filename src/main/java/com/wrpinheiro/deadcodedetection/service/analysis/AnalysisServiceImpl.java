@@ -5,16 +5,15 @@ import com.wrpinheiro.deadcodedetection.model.AnalysisStatus;
 import com.wrpinheiro.deadcodedetection.model.DeadCodeIssue;
 import com.wrpinheiro.deadcodedetection.model.Repository;
 import lombok.extern.slf4j.Slf4j;
-import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.api.errors.JGitInternalException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.io.*;
-import java.nio.file.FileVisitOption;
-import java.nio.file.Files;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -22,17 +21,12 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
-import static java.util.Collections.singletonList;
-import static java.util.Comparator.reverseOrder;
-
 /**
  * Created by wrpinheiro on 3/24/17.
  */
 @Slf4j
 @Service
 public class AnalysisServiceImpl implements AnalysisService {
-
-    private static final String REPOSITORIES_SUBDIR = "repos/";
 
     @Value("${app.analyzer.dataDir}")
     private String dataDir;
@@ -43,6 +37,9 @@ public class AnalysisServiceImpl implements AnalysisService {
     @Value("${app.analyzer.scitoolsHome}")
     private String scitoolsHome;
 
+    @Autowired
+    private GithubService githubService;
+
     @Override
     @Async
     public void analyze(Repository repository) {
@@ -51,7 +48,7 @@ public class AnalysisServiceImpl implements AnalysisService {
         repository.setStatus(AnalysisStatus.PROCESSING);
 
         try {
-            Path repositoryDir = cloneGitHubRepository(repository);
+            Path repositoryDir = githubService.cloneGitHubRepository(repository);
             Path udbFile = createUDBFile(repository, repositoryDir, dataDir);
             String deadCodeIssuesOutput = checkDeadCodeAnalysis(repository, udbFile);
 
@@ -197,58 +194,5 @@ public class AnalysisServiceImpl implements AnalysisService {
             log.error("Error creating UDB file\n{}", ex.getMessage());
             throw new AnalysisException("Error creating UDB file" + ex.getMessage());
         }
-    }
-
-    private Path cloneGitHubRepository(Repository repository) {
-        log.info("Cloning repository {}", repository.getGithubRepository().getUrl());
-
-        try {
-            File repositoryDir = this.createRepositoryDirectory(repository.getName());
-
-            log.info("Repository {} will be cloned to directory {}", repository.getGithubRepository().getUrl(),
-                    repositoryDir.getAbsolutePath());
-
-            Git.cloneRepository()
-                    .setBare(false)
-                    .setURI(repository.getGithubRepository().getUrl())
-                    .setDirectory(repositoryDir)
-                    .setCloneSubmodules(false)
-                    .setBranch(repository.getGithubRepository().getBranch())
-                    .call();
-
-            // the analysis doesn't required the .git directory.
-            removeDotGitDir(repositoryDir);
-
-            return repositoryDir.toPath();
-        } catch(GitAPIException | JGitInternalException | IOException ex) {
-            log.error("Error downloading Github repository with message {}", ex);
-            throw new AnalysisException(ex.getMessage());
-        }
-    }
-
-    private void removeDotGitDir(File repositoryDir) throws IOException {
-        Path gitDir = Paths.get(repositoryDir.getAbsolutePath(), ".git");
-        deleteSubDirectoryStructure(gitDir);
-    }
-
-    private File createRepositoryDirectory(String name) throws IOException {
-        String repositoriesDirectory = dataDir + REPOSITORIES_SUBDIR;
-
-        Path path = Paths.get(repositoriesDirectory, name + "/");
-
-        if (Files.exists(path)) {
-            deleteSubDirectoryStructure(path);
-        }
-
-        Files.createDirectories(path);
-
-        return Paths.get(repositoriesDirectory, name).toFile();
-    }
-
-    private void deleteSubDirectoryStructure(Path path) throws IOException {
-        Files.walk(path, FileVisitOption.FOLLOW_LINKS)
-                .sorted(reverseOrder())
-                .map(Path::toFile)
-                .forEach(File::delete);
     }
 }
