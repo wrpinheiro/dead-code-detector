@@ -28,5 +28,7 @@ COPY scripts /app/scripts
 
 RUN mkdir /var/log/deadcodedetection
 
+ENV JAVA_XMX 1024M
+
 EXPOSE 80 8080
-ENTRYPOINT [ "sh", "-c", "java -jar /app/dead-code-detection-service.jar" ]
+ENTRYPOINT exec java -Xmx$JAVA_XMX -jar /app/dead-code-detection-service.jar
