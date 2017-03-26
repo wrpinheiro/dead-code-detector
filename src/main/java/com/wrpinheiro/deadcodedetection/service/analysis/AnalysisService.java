@@ -8,5 +8,5 @@ import org.springframework.scheduling.annotation.Async;
  */
 public interface AnalysisService {
     @Async
-    void analyse(Repository repository);
+    void analyze(Repository repository);
 }

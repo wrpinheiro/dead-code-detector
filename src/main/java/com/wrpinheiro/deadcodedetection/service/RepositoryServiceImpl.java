@@ -4,13 +4,20 @@ import com.wrpinheiro.deadcodedetection.dao.RepositoryDAO;
 import com.wrpinheiro.deadcodedetection.exceptions.DuplicatedEntity;
 import com.wrpinheiro.deadcodedetection.exceptions.InvalidStateException;
 import com.wrpinheiro.deadcodedetection.model.AnalysisStatus;
+import com.wrpinheiro.deadcodedetection.model.Language;
 import com.wrpinheiro.deadcodedetection.model.Repository;
 import com.wrpinheiro.deadcodedetection.service.analysis.AnalysisService;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.EnumUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+
+import static com.wrpinheiro.deadcodedetection.model.Language.JAVA;
+import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
 
 /**
  * Created by wrpinheiro on 3/24/17.
@@ -23,7 +30,7 @@ public class RepositoryServiceImpl implements RepositoryService {
     @Autowired
     private AnalysisService analysisService;
 
-    public Repository addRepository(String url) {
+    public Repository addRepository(String url, Language language) {
         if (repositoryDAO.findByUrl(url).isPresent()) {
             throw new DuplicatedEntity(String.format("Repository with URL %s already exists. If you want to check the " +
                     "dead code int the available repository, execute the endpoint repository/{repository.id}/checkCode", url));
@@ -31,6 +38,7 @@ public class RepositoryServiceImpl implements RepositoryService {
 
         Repository repository = Repository.builder()
                 .url(url)
+                .language(defaultIfNull(language, JAVA))
                 .status(AnalysisStatus.ADDED)
                 .createdAt(new Date())
                 .build();
@@ -46,7 +54,7 @@ public class RepositoryServiceImpl implements RepositoryService {
         if (newRepository.getStatus().equals(AnalysisStatus.PROCESSING)) {
             throw new InvalidStateException("Can't analyze a repository already being analyzed");
         }
-        analysisService.analyse(newRepository);
+        analysisService.analyze(newRepository);
     }
 
     @Override

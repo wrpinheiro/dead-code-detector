@@ -50,7 +50,7 @@ public class AnalysisServiceImpl implements AnalysisService {
 
     @Override
     @Async
-    public void analyse(Repository repository) {
+    public void analyze(Repository repository) {
         log.info("Starting analysis for repository {}", repository.getUrl());
 
         repository.setStatus(AnalysisStatus.PROCESSING);
@@ -154,22 +154,22 @@ public class AnalysisServiceImpl implements AnalysisService {
             }
 
             return outputLog.toString();
-        } catch (IOException | InterruptedException ex) {
+        } catch (IOException | InterruptedException | RuntimeException ex) {
             log.error("Error running algorithm to detect dead code in repository {}:\n{}", repository.getUrl(), ex.getMessage());
             throw new AnalysisException("Error running algorithm to detect dead code: {}" + ex.getMessage());
         }
-
     }
 
     private Path createUDBFile(Repository repository, Path repositoryDir, String dataDir) {
         log.info("Creating UDB file for repository {}", repository.getUrl());
 
         final String CREATE_UND_SCRIPT = scriptsDir + "create_und.sh";
-        final String UND_FILE = dataDir + String.format("%s-%s", repository.getOwner(), repository.getName());
+        final String UDB_FILE = dataDir + String.format("%s-%s.udb", repository.getOwner(), repository.getName());
 
         try {
-            ProcessBuilder processBuilder = new ProcessBuilder(CREATE_UND_SCRIPT, UND_FILE, repositoryDir.toString());
-            processBuilder.environment().put("SCITOOLS_HOME", scitoolsHome);
+            ProcessBuilder processBuilder = new ProcessBuilder(new File(scitoolsHome, "und").getAbsolutePath(),
+                    "-db", UDB_FILE, "-languages", repository.getLanguage().getStrValue(), "add", repositoryDir.toString(),
+                    "analyze");
 
             Process p = processBuilder.start();
 
@@ -194,8 +194,8 @@ public class AnalysisServiceImpl implements AnalysisService {
                 throw new AnalysisException("Error creating UDB file: " );
             }
 
-            return Paths.get(UND_FILE + ".udb");
-        } catch (IOException | InterruptedException ex) {
+            return Paths.get(UDB_FILE);
+        } catch (IOException | InterruptedException | RuntimeException ex) {
             log.error("Error creating UDB file\n{}", ex.getMessage());
             throw new AnalysisException("Error creating UDB file" + ex.getMessage());
         }

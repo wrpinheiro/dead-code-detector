@@ -43,22 +43,30 @@ public class RepositoryResource {
                     "dead code execute a POST to the endpoint repository/{repository.id}/checkCode")
     })
     @POST
-    public Repository addRepository(@ApiParam(value = "Repository to be added and analyzed")
-                                            RepositoryRequest repositoryRequest) {
+    public Repository addRepository(@ApiParam(value = "Repository to be added and analyzed. The supported languages are:" +
+            "JAVA, ADA, CPP and FORTRAN") RepositoryRequest repositoryRequest) {
         try {
-            return repositoryService.addRepository(repositoryRequest.getUrl());
+            return repositoryService.addRepository(repositoryRequest.getUrl(), repositoryRequest.getLanguage());
         } catch(DuplicatedEntity ex) {
             throw new WebApplicationException(ex, Response.Status.CONFLICT);
         }
     }
 
     @ApiOperation(value = "List the dead code found in the repository.", response = SimpleRepositoryResponse.class)
-    @ApiResponses(value = @ApiResponse(code = 200, message = "The repository created"))
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "The repository created"),
+            @ApiResponse(code = 404, message = "Repository with requested ID not found"),})
     @GET
     @Path("/{repositoryId}")
     public Repository getRepositoryCodeSmellsAnalysis(@ApiParam(name = "repositoryId", value = "the repository Id to search")
                                                  @PathParam("repositoryId") Long repositoryId) {
-        return this.repositoryService.findById(repositoryId);
+        Repository repository = repositoryService.findById(repositoryId);
+
+        if (repository == null) {
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        }
+
+        return repository;
     }
 
     @POST
@@ -71,20 +79,19 @@ public class RepositoryResource {
     @Path("{repositoryId}/checkCode")
     public Repository checkDeadCodeIssues(@ApiParam(name = "repositoryId", value = "The repository id to find dead " +
             "code issues") @PathParam("repositoryId") Long repositoryId) {
-        Repository repository = repositoryService.findById(repositoryId);
-
-        if (repository == null) {
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
-        }
-
         try {
+            Repository repository = repositoryService.findById(repositoryId);
+
+            if (repository == null) {
+                throw new WebApplicationException(Response.Status.NOT_FOUND);
+            }
+
             repositoryService.analyze(repository);
+
+            return repository;
         } catch (InvalidStateException ex) {
             throw new WebApplicationException(Response.Status.PRECONDITION_FAILED);
         }
-
-
-        return repository;
     }
 
     @DELETE
@@ -96,18 +103,18 @@ public class RepositoryResource {
     @Path("{repositoryId}")
     public Repository removeRepository(@ApiParam(name = "repositoryId", value = "The repository id to find dead " +
             "code issues") @PathParam("repositoryId") Long repositoryId) {
-        Repository repository = repositoryService.findById(repositoryId);
-
-        if (repository == null) {
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
-        }
-
         try {
+            Repository repository = repositoryService.findById(repositoryId);
+
+            if (repository == null) {
+                throw new WebApplicationException(Response.Status.NOT_FOUND);
+            }
+
             repositoryService.removeRepository(repository);
+
+            return repository;
         } catch(InvalidStateException ex) {
             throw new WebApplicationException(Response.Status.PRECONDITION_FAILED);
         }
-
-        return repository;
     }
 }
