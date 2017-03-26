@@ -5,7 +5,7 @@ spring:
     application-path: /api
 
 endpoints:
-  enabled: false
+  enabled: true
   info:
     enabled: true
   health:

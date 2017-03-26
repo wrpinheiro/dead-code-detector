@@ -13,16 +13,22 @@ buildscript {
 apply plugin: 'java'
 apply plugin: 'org.springframework.boot'
 
-jar {
-    baseName = 'dead-code-detection-service'
-    version = '0.0.1-SNAPSHOT'
+repositories {
+	mavenCentral()
 }
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
-repositories {
-	mavenCentral()
+project.version = '0.0.2'
+
+jar {
+    baseName = 'dead-code-detection-service'
+    version = null
+}
+
+springBoot  {
+	buildInfo()
 }
 
 dependencies {

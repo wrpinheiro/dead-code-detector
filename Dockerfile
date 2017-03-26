@@ -23,7 +23,7 @@ ENV SCITOOLS_HOME /scitools/bin/linux64
 
 RUN mkdir /data
 
-COPY build/libs/dead-code-detection-service-0.0.1-SNAPSHOT.jar /app/dead-code-detection-service.jar
+COPY build/libs/dead-code-detection-service.jar /app/dead-code-detection-service.jar
 COPY scripts /app/scripts
 
 RUN mkdir /var/log/deadcodedetection
