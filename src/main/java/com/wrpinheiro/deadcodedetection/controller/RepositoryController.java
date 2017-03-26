@@ -1,10 +1,10 @@
 package com.wrpinheiro.deadcodedetection.controller;
 
+import com.wrpinheiro.deadcodedetection.controller.dto.RepositoryRequest;
+import com.wrpinheiro.deadcodedetection.controller.dto.SimpleRepositoryResponse;
 import com.wrpinheiro.deadcodedetection.exceptions.DuplicatedEntity;
 import com.wrpinheiro.deadcodedetection.exceptions.InvalidStateException;
 import com.wrpinheiro.deadcodedetection.model.Repository;
-import com.wrpinheiro.deadcodedetection.controller.dto.RepositoryRequest;
-import com.wrpinheiro.deadcodedetection.controller.dto.SimpleRepositoryResponse;
 import com.wrpinheiro.deadcodedetection.service.RepositoryService;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 @Path("/repository")
 @Produces("application/json")
 @Consumes("application/json")
-@Api(value = "Repository controller (v1 - version in header)", produces = "application/json")
+@Api(value = "Repository controller", produces = "application/json")
 public class RepositoryController {
     @Autowired
     private RepositoryService repositoryService;
@@ -40,7 +40,7 @@ public class RepositoryController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The repository created"),
             @ApiResponse(code = 409, message = "A repository with the URL already exists. If you want to check the " +
-                    "dead code execute a POST to the endpoint repository/{repository.id}/analyze"),
+                    "dead code execute a POST to the endpoint repository/{repository.name}/analyze"),
             @ApiResponse(code = 412, message = "NAME and URL are required fields")
     })
     @POST
@@ -80,12 +80,12 @@ public class RepositoryController {
     @ApiOperation(value = "Analyze a repository to find dead code.", response = SimpleRepositoryResponse.class)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The repository is going to be analyzed (search for dead code"),
-            @ApiResponse(code = 404, message = "A repository with the ID requested could not be found"),
+            @ApiResponse(code = 404, message = "A repository with the requested name could not be found"),
             @ApiResponse(code = 412, message = "Can't analyze a repository already being analyzed")
     })
     @Path("{repositoryName}/analyze")
-    public Repository analyzeRepository(@ApiParam(name = "repositoryName", value = "The repository id to find dead " +
-            "code issues") @PathParam("repositoryName") String repositoryName) {
+    public Repository analyzeRepository(@ApiParam(name = "repositoryName", value = "The repository name to be analyzed")
+                                            @PathParam("repositoryName") String repositoryName) {
         try {
             Repository repository = repositoryService.findByName(repositoryName);
 
