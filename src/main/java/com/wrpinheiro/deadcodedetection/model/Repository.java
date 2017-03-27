@@ -6,7 +6,6 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.util.Date;
-import java.util.List;
 
 /**
  * Created by wrpinheiro on 3/21/17.
@@ -18,7 +17,6 @@ public class Repository {
     private Long id;
     private String name;
     private AnalysisStatus status;
-    private String errorMessage;
 
     /**
      * Date when the repository was added
@@ -35,16 +33,15 @@ public class Repository {
 
     private AnalysisInformation lastAnalysisInformation;
 
-    // TODO move this to another class
     public void setStatus(AnalysisStatus status) {
         this.status = status;
 
-        if (!status.equals(AnalysisStatus.FAILED)) {
-            this.errorMessage = null;
-        }
+        if (this.getLastAnalysisInformation() != null) {
+            if (!status.equals(AnalysisStatus.FAILED)) {
+                this.getLastAnalysisInformation().setErrorMessage(null);
+            }
 
-        if (!status.equals(AnalysisStatus.COMPLETED)) {
-            if (this.getLastAnalysisInformation() != null) {
+            if (!status.equals(AnalysisStatus.COMPLETED)) {
                 this.getLastAnalysisInformation().setDeadCodeIssues(null);
             }
         }

@@ -19,6 +19,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
+import static com.wrpinheiro.deadcodedetection.model.AnalysisInformation.Stage.*;
 import static java.util.Arrays.asList;
 
 /**
@@ -56,22 +57,26 @@ public class AnalysisServiceImpl implements AnalysisService {
             Path udbFile = createUDBFile(repository, repositoryDir, dataDir);
             String deadCodeIssuesOutput = checkDeadCodeAnalysis(repository, udbFile);
 
-            parseDeadCodeIssues(repository, deadCodeIssuesOutput);
+            List<DeadCodeIssue> deadCodeIssues = parseDeadCodeIssues(repository, deadCodeIssuesOutput);
+
+            analysisInformation.setFinishedAt(new Date());
+            analysisInformation.setDeadCodeIssues(deadCodeIssues);
+            analysisInformation.setStage(DONE);
 
             repository.setStatus(AnalysisStatus.COMPLETED);
-            analysisInformation.setFinishedAt(new Date());
 
             log.info("Finished analysis for repository {}", repository.getName());
         } catch (Exception ex) {
             log.info("Error analyzing repository {}", repository.getName());
             log.debug("Error analyzing repository", ex);
-            repository.setErrorMessage(ex.getMessage());
+            analysisInformation.setErrorMessage(ex.getMessage());
             repository.setStatus(AnalysisStatus.FAILED);
         }
     }
 
     private Path createUDBFile(Repository repository, Path repositoryDir, String dataDir) {
         log.info("Creating UDB file for repository {}", repository.getName());
+        repository.getLastAnalysisInformation().setStage(CREATING_UDB_FILE);
 
         final String UND_EXECUTABLE = new File(scitoolsHome, "und").getAbsolutePath();
         final String UDB_FILE = dataDir + String.format("%s.udb", repository.getName());
@@ -106,6 +111,7 @@ public class AnalysisServiceImpl implements AnalysisService {
 
     private String checkDeadCodeAnalysis(Repository repository, Path udbFile) {
         log.info("Running script to find dead code in repository {}", repository.getName());
+        repository.getLastAnalysisInformation().setStage(CHECKING_DEAD_CODE);
 
         final String UPERL_FILE = scitoolsHome + "/uperl";
         final String UNUSED_CODE_SCRIPT = scriptsDir + "/acjf_unused_modified.pl";
@@ -141,12 +147,12 @@ public class AnalysisServiceImpl implements AnalysisService {
      * 6 = "\tSeparadorLiteraisNumericos.main.args;[File:;/Users/wrpinheiro/.deadCodeDetection/repos/wrpinheiro/diversos/infoq/jdk7/SeparadorLiteraisNumericos.java;Line:;2;2;]"
      *
      * The kind of dead code starts with an "@" and the information about the dead code (the file, lines, etc) and in a dot comma separated string
-     *
-     * @param repository
+     *  @param repository
      * @param deadCodeOutput
      */
-    private void parseDeadCodeIssues(Repository repository, String deadCodeOutput) {
+    private List<DeadCodeIssue> parseDeadCodeIssues(Repository repository, String deadCodeOutput) {
         log.info("Creating instances of dead code issues for repository {}", repository.getName());
+        repository.getLastAnalysisInformation().setStage(CREATING_DEAD_CODE_ISSUES);
 
         List<DeadCodeIssue> deadCodeIssues = new ArrayList<>();
 
@@ -165,7 +171,7 @@ public class AnalysisServiceImpl implements AnalysisService {
 
         deadCodeIssues.sort(Comparator.comparing(DeadCodeIssue::getFilename));
 
-        repository.getLastAnalysisInformation().setDeadCodeIssues(deadCodeIssues);
+        return deadCodeIssues;
     }
 
     private DeadCodeIssue deadCodeLocationToInstance(String kind, String[] location) {

@@ -10,6 +10,10 @@ import java.util.List;
  */
 @Data
 public class AnalysisInformation {
+    public enum Stage {
+        STARTED, CLONING_REPO, CREATING_UDB_FILE, CHECKING_DEAD_CODE, CREATING_DEAD_CODE_ISSUES, DONE
+    }
+
     /**
      * Date the analysis stared
      */
@@ -18,6 +22,10 @@ public class AnalysisInformation {
      * Date the analysis finished
      */
     private Date finishedAt;
+
+    private Stage stage = Stage.STARTED;
+
+    private String errorMessage;
 
     private List<DeadCodeIssue> deadCodeIssues;
 }

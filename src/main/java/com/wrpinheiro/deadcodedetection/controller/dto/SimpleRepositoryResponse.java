@@ -1,6 +1,5 @@
 package com.wrpinheiro.deadcodedetection.controller.dto;
 
-import com.wrpinheiro.deadcodedetection.model.AnalysisInformation;
 import com.wrpinheiro.deadcodedetection.model.AnalysisStatus;
 import com.wrpinheiro.deadcodedetection.model.GithubRepository;
 import com.wrpinheiro.deadcodedetection.model.Repository;
@@ -17,7 +16,6 @@ public class SimpleRepositoryResponse {
     private String name;
     private GithubRepository githubRepository;
     private AnalysisStatus status;
-    private String errorMessage;
     private Date createdAt;
     private Date lastAnalysisRequested;
     private SimpleAnalysisInformationResponse lastAnalysisInformation;
@@ -27,7 +25,6 @@ public class SimpleRepositoryResponse {
         this.name = repository.getName();
         this.githubRepository = repository.getGithubRepository();
         this.status = repository.getStatus();
-        this.errorMessage = repository.getErrorMessage();
         this.createdAt = repository.getCreatedAt();
         this.lastAnalysisRequested = repository.getLastAnalysisRequested();
         this.lastAnalysisInformation = new SimpleAnalysisInformationResponse(repository.getLastAnalysisInformation());

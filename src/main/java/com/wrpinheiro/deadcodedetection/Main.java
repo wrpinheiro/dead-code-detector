@@ -1,16 +1,10 @@
 package com.wrpinheiro.deadcodedetection;
 
 import com.wrpinheiro.deadcodedetection.service.analysis.ProcessUtils;
-import org.zeroturnaround.exec.ProcessExecutor;
-import org.zeroturnaround.exec.ProcessResult;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.concurrent.TimeoutException;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 
 /**
  * Created by wrpinheiro on 3/24/17.

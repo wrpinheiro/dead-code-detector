@@ -16,6 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import static com.wrpinheiro.deadcodedetection.model.AnalysisInformation.Stage.CLONING_REPO;
 import static java.util.Comparator.reverseOrder;
 
 /**
@@ -33,6 +34,8 @@ public class GithubServiceImpl implements GithubService {
 
     public Path cloneGitHubRepository(Repository repository) {
         log.info("Cloning repository {}", repository.getGithubRepository().getUrl());
+
+        repository.getLastAnalysisInformation().setStage(CLONING_REPO);
 
         try {
             File repositoryDir = this.createRepositoryDirectory(repository.getName());
