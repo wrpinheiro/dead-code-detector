@@ -57,11 +57,13 @@ public class RepositoryServiceImpl implements RepositoryService {
         return newRepository;
     }
 
-    public void analyze(Repository newRepository) {
-        if (newRepository.getStatus().equals(AnalysisStatus.PROCESSING)) {
+    public void analyze(Repository repository) {
+        if (repository.getStatus().equals(AnalysisStatus.PROCESSING)) {
             throw new InvalidStateException("Can't analyze a repository already being analyzed");
         }
-        analysisService.analyze(newRepository);
+
+        repository.setLastAnalysisRequested(new Date());
+        analysisService.analyze(repository);
     }
 
     @Override

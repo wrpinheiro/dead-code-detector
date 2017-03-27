@@ -23,7 +23,10 @@ public class RepositoryDAOImpl implements RepositoryDAO {
 
     @Override
     public Repository save(Repository repository) {
-        repository.setId(repositoryIdSequence.incrementAndGet());
+        if (repository.getId() == null) {
+            repository.setId(repositoryIdSequence.incrementAndGet());
+        }
+
         repositories.put(repository.getId(), repository);
         return repository;
     }

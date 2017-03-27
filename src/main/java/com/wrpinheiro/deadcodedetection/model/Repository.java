@@ -25,6 +25,12 @@ public class Repository {
      */
     private Date createdAt;
 
+    /**
+     * Date when the user requested the repository analysis (note that this is not the same
+     * date/time the analysis started, because the analysis is executed asynchronously.
+     */
+    private Date lastAnalysisRequested;
+
     private GithubRepository githubRepository;
 
     /**

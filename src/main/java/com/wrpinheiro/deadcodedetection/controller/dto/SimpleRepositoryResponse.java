@@ -18,6 +18,7 @@ public class SimpleRepositoryResponse {
     private AnalysisStatus status;
     private String errorMessage;
     private Date createdAt;
+    private Date lastAnalysisRequested;
     private Date processedAt;
 
     public SimpleRepositoryResponse(Repository repository) {
@@ -27,6 +28,7 @@ public class SimpleRepositoryResponse {
         this.status = repository.getStatus();
         this.errorMessage = repository.getErrorMessage();
         this.createdAt = repository.getCreatedAt();
+        this.lastAnalysisRequested = repository.getLastAnalysisRequested();
         this.processedAt = repository.getProcessedAt();
     }
 }
