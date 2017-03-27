@@ -1,8 +1,10 @@
 spring:
-  main:
-    banner-mode: "off"
+  jackson:
+    date-format: "yyyy-MM-dd HH:mm:ss.SSS"
   jersey:
     application-path: /api
+  main:
+    banner-mode: "off"
 
 endpoints:
   enabled: true
