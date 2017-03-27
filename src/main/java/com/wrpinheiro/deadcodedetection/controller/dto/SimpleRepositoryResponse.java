@@ -20,7 +20,6 @@ public class SimpleRepositoryResponse {
     private String errorMessage;
     private Date createdAt;
     private Date lastAnalysisRequested;
-    private Date processedAt;
     private SimpleAnalysisInformationResponse lastAnalysisInformation;
 
     public SimpleRepositoryResponse(Repository repository) {
