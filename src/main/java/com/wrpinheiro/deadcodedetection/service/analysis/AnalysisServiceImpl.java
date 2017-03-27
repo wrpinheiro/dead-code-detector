@@ -1,6 +1,7 @@
 package com.wrpinheiro.deadcodedetection.service.analysis;
 
 import com.wrpinheiro.deadcodedetection.exceptions.AnalysisException;
+import com.wrpinheiro.deadcodedetection.model.AnalysisInformation;
 import com.wrpinheiro.deadcodedetection.model.AnalysisStatus;
 import com.wrpinheiro.deadcodedetection.model.DeadCodeIssue;
 import com.wrpinheiro.deadcodedetection.model.Repository;
@@ -44,7 +45,11 @@ public class AnalysisServiceImpl implements AnalysisService {
     public void analyze(Repository repository) {
         log.info("Starting analysis for repository {}", repository.getName());
 
+        AnalysisInformation analysisInformation = new AnalysisInformation();
+        analysisInformation.setStartedAt(new Date());
+
         repository.setStatus(AnalysisStatus.PROCESSING);
+        repository.setLastAnalysisInformation(analysisInformation);
 
         try {
             Path repositoryDir = githubService.cloneGitHubRepository(repository);
@@ -54,7 +59,7 @@ public class AnalysisServiceImpl implements AnalysisService {
             parseDeadCodeIssues(repository, deadCodeIssuesOutput);
 
             repository.setStatus(AnalysisStatus.COMPLETED);
-            repository.setProcessedAt(new Date());
+            analysisInformation.setFinishedAt(new Date());
 
             log.info("Finished analysis for repository {}", repository.getName());
         } catch (Exception ex) {
@@ -160,7 +165,7 @@ public class AnalysisServiceImpl implements AnalysisService {
 
         deadCodeIssues.sort(Comparator.comparing(DeadCodeIssue::getFilename));
 
-        repository.setDeadCodeIssues(deadCodeIssues);
+        repository.getLastAnalysisInformation().setDeadCodeIssues(deadCodeIssues);
     }
 
     private DeadCodeIssue deadCodeLocationToInstance(String kind, String[] location) {

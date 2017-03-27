@@ -21,7 +21,7 @@ public class Repository {
     private String errorMessage;
 
     /**
-     * The time the repository was added
+     * Date when the repository was added
      */
     private Date createdAt;
 
@@ -33,13 +33,9 @@ public class Repository {
 
     private GithubRepository githubRepository;
 
-    /**
-     * The time the repository was processed
-     */
-    private Date processedAt;
+    private AnalysisInformation lastAnalysisInformation;
 
-    private List<DeadCodeIssue> deadCodeIssues;
-
+    // TODO move this to another class
     public void setStatus(AnalysisStatus status) {
         this.status = status;
 
@@ -48,10 +44,15 @@ public class Repository {
         }
 
         if (!status.equals(AnalysisStatus.COMPLETED)) {
-            this.deadCodeIssues = null;
+            if (this.getLastAnalysisInformation() != null) {
+                this.getLastAnalysisInformation().setDeadCodeIssues(null);
+            }
         }
     }
 
+    /**
+     * This is a hack to allow dynamically instantiate the POJO without using the builder.
+     */
     @JsonPOJOBuilder(withPrefix = "")
     public static final class RepositoryBuilder {
     }

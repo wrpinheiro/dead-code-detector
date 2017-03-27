@@ -39,6 +39,9 @@ public class GithubRepository {
                 null;
     }
 
+    /**
+     * This is a hack to allow dynamically instantiate the POJO without using the builder.
+     */
     @JsonPOJOBuilder(withPrefix = "")
     public static final class GithubRepositoryBuilder {
     }
