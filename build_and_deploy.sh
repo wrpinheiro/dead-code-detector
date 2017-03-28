@@ -12,8 +12,11 @@ docker run -it -p 8080:8080  wpinheiro_dead_code_detection_service
 docker tag  wpinheiro_dead_code_detection_service registry2.swarm.devfactory.com/devfactory/wpinheiro_dead_code_detection_service:$APP_VERSION
 docker push registry2.swarm.devfactory.com/devfactory/wpinheiro_dead_code_detection_service:$APP_VERSION
 
-export DOCKER_HOST="tcp://webserver.devfactory.com"
-docker service ps wpinheiro_dead_code_detection_service
-docker service rm wpinheiro_dead_code_detection_service
-docker service create -p 17951:8080 --name wpinheiro_dead_code_detection_service --replicas 1 --limit-memory 1g registry2.swarm.devfactory.com/devfactory/wpinheiro_dead_code_detection_service:$APP_VERSION
-docker service ps wpinheiro_dead_code_detection_service
+#export DOCKER_HOST="tcp://webserver.devfactory.com"
+#unset DOCKER_HOST
+
+docker -H tcp://webserver.devfactory.com service ps wpinheiro_dead_code_detection_service
+docker -H tcp://webserver.devfactory.com service rm wpinheiro_dead_code_detection_service
+docker -H tcp://webserver.devfactory.com service create -p 17951:8080 --name wpinheiro_dead_code_detection_service --replicas 1 --limit-memory 1g registry2.swarm.devfactory.com/devfactory/wpinheiro_dead_code_detection_service:$APP_VERSION
+docker -H tcp://webserver.devfactory.com service ps wpinheiro_dead_code_detection_service
+
