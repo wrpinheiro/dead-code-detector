@@ -27,8 +27,8 @@ public class RepositoryController {
     @Autowired
     private RepositoryService repositoryService;
 
-    @ApiOperation(value = "List all repositories analyzed. This is a simplified view of repository without the code smells.",
-            response = Repository.class, responseContainer = "List")
+    @ApiOperation(value = "List all repositories analyzed. This is a simplified view of repository without the code " +
+            "smells.", response = SimpleRepositoryResponse.class, responseContainer = "List")
     @ApiResponses(value = @ApiResponse(code = 200, message = "Zero or more repositories found",
             responseContainer = "List", response = Repository.class))
     @GET
@@ -40,8 +40,9 @@ public class RepositoryController {
     @ApiOperation(value = "Create a repository.", response = Repository.class)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The repository created"),
-            @ApiResponse(code = 409, message = "A repository with the URL already exists. If you want to check the " +
-                    "dead code execute a POST to the endpoint repository/{repository.name}/analyze"),
+            @ApiResponse(code = 409, message = "A repository with the same NAME already exists. Please select a new " +
+                    "name and POST again. If you want to check the dead code execute a POST to the endpoint " +
+                    "repository/{repository.name}/analyze"),
             @ApiResponse(code = 412, message = "NAME and URL are required fields")
     })
     @POST
@@ -60,9 +61,9 @@ public class RepositoryController {
         }
     }
 
-    @ApiOperation(value = "List the dead code issues found in the repository.", response = SimpleRepositoryResponse.class)
+    @ApiOperation(value = "List the dead code issues found in the repository.", response = Repository.class)
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "The repository created", response = SimpleRepositoryResponse.class),
+            @ApiResponse(code = 200, message = "The repository created", response = Repository.class),
             @ApiResponse(code = 404, message = "Repository with the requested name could not found"),})
     @GET
     @Path("/{repositoryName}")
@@ -103,6 +104,7 @@ public class RepositoryController {
     }
 
     @DELETE
+    @ApiOperation(value = "Remove a previously added repository", response = Repository.class)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The repository was deleted"),
             @ApiResponse(code = 404, message = "The repository could not be found"),
