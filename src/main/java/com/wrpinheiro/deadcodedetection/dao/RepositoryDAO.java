@@ -13,7 +13,9 @@ public interface RepositoryDAO {
 
     List<Repository> findAll();
 
-    Optional<Repository> findByName(String name);
+    Optional<Repository> findByUrlAndBranch(String url, String branch);
 
-    void remove(Long id);
+    void remove(String uuid);
+
+    Repository findByUUID(String repositoryUUID);
 }

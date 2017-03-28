@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
 import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
@@ -31,10 +32,14 @@ public class RepositoryServiceImpl implements RepositoryService {
     private final static String DEFAULT_BRANCH = "master";
     private static final Language DEFAULT_LANGUAGE = Language.JAVA;
 
-    public Repository addRepository(String name, String url, String branch, Language language) {
-        if (repositoryDAO.findByName(name).isPresent()) {
-            throw new DuplicatedEntity(String.format("Repository with name %s already exists. If you want to analyze this" +
-                    "repository execute the endpoint repository/{repository.name}/analyze", url));
+    private String getUuid() {
+        return UUID.randomUUID().toString();
+    }
+
+    public Repository addRepository(String url, String branch, Language language) {
+        if (repositoryDAO.findByUrlAndBranch(url, branch).isPresent()) {
+            throw new DuplicatedEntity(String.format("Repository with url %s and branch %s already exists. If you want " +
+                    "to analyze this repository execute the endpoint repository/{repository.uuid}/analyze", url, branch));
         }
 
         Repository repository = Repository.builder()
@@ -45,7 +50,7 @@ public class RepositoryServiceImpl implements RepositoryService {
                                 .language(defaultIfNull(language, DEFAULT_LANGUAGE))
                                 .branch(defaultIfBlank(branch, DEFAULT_BRANCH))
                                 .build())
-                .name(name)
+                .uuid(this.getUuid())
                 .status(AnalysisStatus.ADDED)
                 .createdAt(new Date())
                 .build();
@@ -71,20 +76,19 @@ public class RepositoryServiceImpl implements RepositoryService {
         if (repository.getStatus().equals(AnalysisStatus.PROCESSING)) {
             throw new InvalidStateException("Could not remove a repository while being analyzed");
         }
-        repositoryDAO.remove(repository.getId());
+        repositoryDAO.remove(repository.getUuid());
     }
 
+    @Override
     public List<Repository> findAll() {
         return repositoryDAO.findAll();
     }
 
     @Override
-    public Repository findByName(String repositoryName) {
-        return repositoryDAO.findByName(repositoryName).orElse(null);
+    public Repository findByUUID(String repositoryUUID) {
+        return repositoryDAO.findByUUID(repositoryUUID);
     }
 
-//    @Override
-//    public Repository findById(Long id) {
-//        return repositoryDAO.findById(id);
-//    }
+
+
 }

@@ -8,12 +8,13 @@ import lombok.Data;
 import java.util.Date;
 
 /**
+ * A representation of repository without the list of dead code issues
+ *
  * Created by wrpinheiro on 3/21/17.
  */
 @Data
 public class SimpleRepositoryResponse {
-    private Long id;
-    private String name;
+    private String uuid;
     private GithubRepository githubRepository;
     private AnalysisStatus status;
     private Date createdAt;
@@ -21,8 +22,7 @@ public class SimpleRepositoryResponse {
     private SimpleAnalysisInformationResponse lastAnalysisInformation;
 
     public SimpleRepositoryResponse(Repository repository) {
-        this.id = repository.getId();
-        this.name = repository.getName();
+        this.uuid = repository.getUuid();
         this.githubRepository = repository.getGithubRepository();
         this.status = repository.getStatus();
         this.createdAt = repository.getCreatedAt();

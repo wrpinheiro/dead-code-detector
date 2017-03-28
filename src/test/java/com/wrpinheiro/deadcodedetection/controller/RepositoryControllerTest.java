@@ -47,7 +47,6 @@ public class RepositoryControllerTest {
     @Test
     public void mustCreateARepositoryWithBranchAndDefaultLanguage() {
         RepositoryRequest request = new RepositoryRequest();
-        request.setName("jgraphlib");
         request.setUrl("https://github.com/wrpinheiro/jgraphlib.git");
 
         ResponseEntity<Repository> entity = this.restTemplate.postForEntity("/api/repository",
@@ -59,11 +58,10 @@ public class RepositoryControllerTest {
         assertThat(entity.getBody().getGithubRepository().getBranch()).isEqualTo("master");
     }
 
-    // POST /api/repository/{repositoryName}
+    // POST /api/repository/{uuid}
     @Test
     public void mustReturnRepositoryJustCreated() {
         RepositoryRequest request = new RepositoryRequest();
-        request.setName("jgraphlib-example");
         request.setUrl("https://github.com/wrpinheiro/jgraphlib.git");
 
         ResponseEntity<Repository> entityCreated = this.restTemplate.postForEntity("/api/repository",
@@ -72,7 +70,7 @@ public class RepositoryControllerTest {
         assertThat(entityCreated.getStatusCode()).isEqualTo(HttpStatus.OK);
         Repository repoCreated = entityCreated.getBody();
 
-        ResponseEntity<Repository> entityRetrieved = this.restTemplate.getForEntity("/api/repository/" + repoCreated.getName(),
+        ResponseEntity<Repository> entityRetrieved = this.restTemplate.getForEntity("/api/repository/" + repoCreated.getUuid(),
                 Repository.class);
 
         assertThat(entityRetrieved.getStatusCode()).isEqualTo(HttpStatus.OK);

@@ -14,6 +14,8 @@ import java.util.Date;
 @Data
 @Builder
 public class Repository {
+    private String uuid;
+
     private Long id;
     private String name;
     private AnalysisStatus status;

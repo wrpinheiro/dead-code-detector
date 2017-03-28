@@ -9,9 +9,6 @@ import lombok.Data;
  */
 @Data
 public class RepositoryRequest {
-    @ApiModelProperty(value = "A name for this repository. Must be unique!", required = true)
-    private String name;
-
     @ApiModelProperty(required = true, allowableValues = "https://github.com/<owner>/<repository>.git")
     private String url;
 

@@ -1,15 +1,15 @@
 package com.wrpinheiro.deadcodedetection.dao;
 
+import com.wrpinheiro.deadcodedetection.model.GithubRepository;
 import com.wrpinheiro.deadcodedetection.model.Repository;
 import org.springframework.stereotype.Component;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
 
+import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -17,35 +17,37 @@ import static java.util.stream.Collectors.toList;
  */
 @Component
 public class RepositoryDAOImpl implements RepositoryDAO {
-    private AtomicLong repositoryIdSequence = new AtomicLong();
-
-    private Map<Long, Repository> repositories = new ConcurrentHashMap<>();
+    private Map<String, Repository> repositories = new ConcurrentHashMap<>();
 
     @Override
     public Repository save(Repository repository) {
-        if (repository.getId() == null) {
-            repository.setId(repositoryIdSequence.incrementAndGet());
-        }
-
-        repositories.put(repository.getId(), repository);
+        repositories.put(repository.getUuid(), repository);
         return repository;
     }
 
     @Override
     public List<Repository> findAll() {
         return repositories.values().stream().sorted(
-                Comparator.comparing(repo -> repo.getGithubRepository().getUrl()))
+                comparing(repo -> repo.getGithubRepository().getUrl()))
                 .collect(toList());
     }
 
     @Override
-    public Optional<Repository> findByName(String name) {
+    public Optional<Repository> findByUrlAndBranch(String url, String branch) {
         return repositories.values()
-                .stream().filter(repo -> repo.getName().equals(name)).findFirst();
+                .stream().filter(repo -> {
+                    GithubRepository githubRepository = repo.getGithubRepository();
+                    return githubRepository.getUrl().equals(url) && githubRepository.getBranch().equals(branch);
+                }).findFirst();
     }
 
     @Override
-    public void remove(Long id) {
-        this.repositories.remove(id);
+    public void remove(String uuid) {
+        this.repositories.remove(uuid);
+    }
+
+    @Override
+    public Repository findByUUID(String uuid) {
+        return this.repositories.get(uuid);
     }
 }

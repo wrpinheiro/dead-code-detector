@@ -40,22 +40,21 @@ public class RepositoryController {
     @ApiOperation(value = "Create a repository.", response = Repository.class)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The repository created"),
-            @ApiResponse(code = 409, message = "A repository with the same NAME already exists. Please select a new " +
-                    "name and POST again. If you want to check the dead code execute a POST to the endpoint " +
-                    "repository/{repository.name}/analyze"),
-            @ApiResponse(code = 412, message = "NAME and URL are required fields")
+            @ApiResponse(code = 409, message = "A repository with the same URL and BRANCH already exists. Please select different values " +
+                    "and POST again. If you want to check the dead code execute a POST to the endpoint " +
+                    "repository/{repository.uuid}/analyze"),
+            @ApiResponse(code = 412, message = "URL is a required field")
     })
     @POST
     public Repository addRepository(@ApiParam(value = "Repository to be added and analyzed. The supported languages are:" +
             "JAVA, ADA, CPP and FORTRAN") RepositoryRequest repositoryRequest) {
 
         try {
-            if (repositoryRequest.getName() == null || repositoryRequest.getUrl() == null) {
+            if (repositoryRequest.getUrl() == null) {
                 throw new WebApplicationException(Response.Status.PRECONDITION_FAILED);
             }
 
-            return repositoryService.addRepository(repositoryRequest.getName(), repositoryRequest.getUrl(),
-                    repositoryRequest.getBranch(), repositoryRequest.getLanguage());
+            return repositoryService.addRepository(repositoryRequest.getUrl(), repositoryRequest.getBranch(), repositoryRequest.getLanguage());
         } catch(DuplicatedEntity ex) {
             throw new WebApplicationException(ex, Response.Status.CONFLICT);
         }
@@ -64,12 +63,12 @@ public class RepositoryController {
     @ApiOperation(value = "List the dead code issues found in the repository.", response = Repository.class)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The repository created", response = Repository.class),
-            @ApiResponse(code = 404, message = "Repository with the requested name could not found"),})
+            @ApiResponse(code = 404, message = "Repository with the requested uuid could not found"),})
     @GET
-    @Path("/{repositoryName}")
-    public Repository getRepositoryIssues(@ApiParam(name = "repositoryName", value = "the repository name to search")
-                                                 @PathParam("repositoryName") String repositoryName) {
-        Repository repository = repositoryService.findByName(repositoryName);
+    @Path("/{repositoryUUID}")
+    public Repository getRepositoryIssues(@ApiParam(name = "repositoryUUID", value = "the repository uuid to search")
+                                                 @PathParam("repositoryUUID") String repositoryUUID) {
+        Repository repository = repositoryService.findByUUID(repositoryUUID);
 
         if (repository == null) {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
@@ -82,14 +81,14 @@ public class RepositoryController {
     @ApiOperation(value = "Analyze a repository to find dead code.", response = SimpleRepositoryResponse.class)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The repository is going to be analyzed (search for dead code"),
-            @ApiResponse(code = 404, message = "A repository with the requested name could not be found"),
+            @ApiResponse(code = 404, message = "A repository with the requested UUID could not be found"),
             @ApiResponse(code = 412, message = "Can't analyze a repository already being analyzed")
     })
-    @Path("{repositoryName}/analyze")
-    public Repository analyzeRepository(@ApiParam(name = "repositoryName", value = "The repository name to be analyzed")
-                                            @PathParam("repositoryName") String repositoryName) {
+    @Path("{repositoryUUID}/analyze")
+    public Repository analyzeRepository(@ApiParam(name = "repositoryUUID", value = "The repository UUID to be analyzed")
+                                            @PathParam("repositoryUUID") String repositoryUUID) {
         try {
-            Repository repository = repositoryService.findByName(repositoryName);
+            Repository repository = repositoryService.findByUUID(repositoryUUID);
 
             if (repository == null) {
                 throw new WebApplicationException(Response.Status.NOT_FOUND);
@@ -104,17 +103,17 @@ public class RepositoryController {
     }
 
     @DELETE
-    @ApiOperation(value = "Remove a previously added repository", response = Repository.class)
+    @ApiOperation(value = "Remove a previously added repository and its analysis", response = Repository.class)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The repository was deleted"),
             @ApiResponse(code = 404, message = "The repository could not be found"),
             @ApiResponse(code = 412, message = "Trying to remove a repository while being analyzed"),
     })
-    @Path("{repositoryName}")
-    public Repository removeRepository(@ApiParam(name = "repositoryName", value = "The repository name to find dead " +
-            "code issues") @PathParam("repositoryName") String repositoryName) {
+    @Path("{repositoryUUID}")
+    public Repository removeRepository(@ApiParam(name = "repositoryUUID", value = "The repository UUID to remove")
+                                           @PathParam("repositoryUUID") String repositoryUUID) {
         try {
-            Repository repository = repositoryService.findByName(repositoryName);
+            Repository repository = repositoryService.findByUUID(repositoryUUID);
 
             if (repository == null) {
                 throw new WebApplicationException(Response.Status.NOT_FOUND);
