@@ -5,6 +5,10 @@ export APP_VERSION=$(grep "project\.version" build.gradle | sed -E "s/(.*) = '(.
 ./gradlew build
 #export DOCKER_HOST="tcp://build.swarm.devfactory.com"
 docker build -t wpinheiro_dead_code_detection_service .
+
+# test your image before send to remote registry
+docker run -it -p 8080:8080  wpinheiro_dead_code_detection_service
+
 docker tag  wpinheiro_dead_code_detection_service registry2.swarm.devfactory.com/devfactory/wpinheiro_dead_code_detection_service:$APP_VERSION
 docker push registry2.swarm.devfactory.com/devfactory/wpinheiro_dead_code_detection_service:$APP_VERSION
 

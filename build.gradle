@@ -20,7 +20,7 @@ repositories {
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
-project.version = '0.0.6'
+project.version = '0.0.7'
 
 jar {
     baseName = 'dead-code-detection-service'
@@ -42,4 +42,3 @@ dependencies {
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 	testCompile('org.springframework.restdocs:spring-restdocs-mockmvc')
 }
-

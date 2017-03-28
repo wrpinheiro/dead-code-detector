@@ -29,7 +29,8 @@ public class RepositoryController {
 
     @ApiOperation(value = "List all repositories analyzed. This is a simplified view of repository without the code smells.",
             response = Repository.class, responseContainer = "List")
-    @ApiResponses(value = @ApiResponse(code = 200, message = "Zero or more repositories found"))
+    @ApiResponses(value = @ApiResponse(code = 200, message = "Zero or more repositories found",
+            responseContainer = "List", response = Repository.class))
     @GET
     public List<SimpleRepositoryResponse> getRepositories() {
         return repositoryService.findAll().stream().map(repository -> new SimpleRepositoryResponse(repository))
@@ -61,7 +62,7 @@ public class RepositoryController {
 
     @ApiOperation(value = "List the dead code issues found in the repository.", response = SimpleRepositoryResponse.class)
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "The repository created"),
+            @ApiResponse(code = 200, message = "The repository created", response = SimpleRepositoryResponse.class),
             @ApiResponse(code = 404, message = "Repository with the requested name could not found"),})
     @GET
     @Path("/{repositoryName}")

@@ -19,7 +19,7 @@ import static java.util.stream.Collectors.toList;
 public class RepositoryDAOImpl implements RepositoryDAO {
     private AtomicLong repositoryIdSequence = new AtomicLong();
 
-    private Map<Long, Repository> repositories = new ConcurrentHashMap();
+    private Map<Long, Repository> repositories = new ConcurrentHashMap<>();
 
     @Override
     public Repository save(Repository repository) {
@@ -39,21 +39,10 @@ public class RepositoryDAOImpl implements RepositoryDAO {
     }
 
     @Override
-    public Repository findById(Long repositoryId) {
-        return repositories.get(repositoryId);
-    }
-
-    @Override
     public Optional<Repository> findByName(String name) {
         return repositories.values()
                 .stream().filter(repo -> repo.getName().equals(name)).findFirst();
     }
-
-//    @Override
-//    public Optional<Repository> findByUrl(String url) {
-//        return repositories.values()
-//                .stream().filter(repo -> repo.getUrl().equals(url)).findFirst();
-//    }
 
     @Override
     public void remove(Long id) {
