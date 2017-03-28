@@ -17,6 +17,8 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
+ * Test endpoint of Repository controller
+ *
  * Created by wrpinheiro on 3/26/17.
  */
 
@@ -77,6 +79,6 @@ public class RepositoryControllerTest {
 
         assertThat(entityRetrieved.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(entityRetrieved.getBody().getUuid()).isEqualTo(uuid);
-        assertThat(entityRetrieved.getBody().getGithubRepository().getUrl()).isEqualTo(assertThat(url));
+        assertThat(entityRetrieved.getBody().getGithubRepository().getUrl()).isEqualTo(url);
     }
 }
