@@ -44,7 +44,7 @@ public class AnalysisServiceImpl implements AnalysisService {
     @Override
     @Async
     public void analyze(Repository repository) {
-        log.info("Starting analysis for repository {}", repository.getName());
+        log.info("Starting analysis for repository {}", repository.getUuid());
 
         AnalysisInformation analysisInformation = new AnalysisInformation();
         analysisInformation.setStartedAt(new Date());
@@ -65,9 +65,9 @@ public class AnalysisServiceImpl implements AnalysisService {
 
             repository.setStatus(AnalysisStatus.COMPLETED);
 
-            log.info("Finished analysis for repository {}", repository.getName());
+            log.info("Finished analysis for repository {}", repository.getUuid());
         } catch (Exception ex) {
-            log.info("Error analyzing repository {}", repository.getName());
+            log.info("Error analyzing repository {}", repository.getUuid());
             log.debug("Error analyzing repository", ex);
             analysisInformation.setErrorMessage(ex.getMessage());
             repository.setStatus(AnalysisStatus.FAILED);
@@ -75,11 +75,11 @@ public class AnalysisServiceImpl implements AnalysisService {
     }
 
     private Path createUDBFile(Repository repository, Path repositoryDir, String dataDir) {
-        log.info("Creating UDB file for repository {}", repository.getName());
+        log.info("Creating UDB file for repository {}", repository.getUuid());
         repository.getLastAnalysisInformation().setStage(CREATING_UDB_FILE);
 
         final String UND_EXECUTABLE = new File(scitoolsHome, "und").getAbsolutePath();
-        final String UDB_FILE = dataDir + String.format("%s.udb", repository.getName());
+        final String UDB_FILE = dataDir + String.format("%s.udb", repository.getUuid());
 
         try {
             log.debug(String.join(" ", UND_EXECUTABLE, "create", "-db", UDB_FILE, "-languages",
@@ -92,7 +92,7 @@ public class AnalysisServiceImpl implements AnalysisService {
                             "analyze")).timeout(60).build());
 
             if (output.getExitCode() != 0) {
-                log.info("Error creating UDB file for repository: {}.", repository.getName());
+                log.info("Error creating UDB file for repository: {}.", repository.getUuid());
 
                 String logs = String.format("\n\nStdout: %s\n\nStderr: %s\n\n", output.getStdout(), output.getStderr());
                 log.error("Error creating UDB file\n{}", logs);
@@ -100,7 +100,7 @@ public class AnalysisServiceImpl implements AnalysisService {
                 throw new AnalysisException("Error creating UDB file: " + UDB_FILE);
             }
 
-            log.info("Finished creation of UDB file for repository: {}", repository.getName());
+            log.info("Finished creation of UDB file for repository: {}", repository.getUuid());
 
             return Paths.get(UDB_FILE);
         } catch (Exception ex) {
@@ -110,7 +110,7 @@ public class AnalysisServiceImpl implements AnalysisService {
     }
 
     private String checkDeadCodeAnalysis(Repository repository, Path udbFile) {
-        log.info("Running script to find dead code in repository {}", repository.getName());
+        log.info("Running script to find dead code in repository {}", repository.getUuid());
         repository.getLastAnalysisInformation().setStage(CHECKING_DEAD_CODE);
 
         final String UPERL_FILE = scitoolsHome + "/uperl";
@@ -121,16 +121,16 @@ public class AnalysisServiceImpl implements AnalysisService {
                     .commands(asList(UPERL_FILE, UNUSED_CODE_SCRIPT, "-db",
                             udbFile.toAbsolutePath().toString(), "-byKind")).timeout(60).build());
 
-            log.debug("Finished algorithm to detect dead code in repository: {}", repository.getName());
+            log.debug("Finished algorithm to detect dead code in repository: {}", repository.getUuid());
 
             if (output.getExitCode() != 0) {
-                log.error("Error running algorithm to detect dead code in repository {}:\n{}", repository.getName(), output.getStderr());
+                log.error("Error running algorithm to detect dead code in repository {}:\n{}", repository.getUuid(), output.getStderr());
                 throw new AnalysisException("Error running algorithm to detect dead code.");
             }
 
             return output.getStdout();
         } catch (Exception ex) {
-            log.error("Error running algorithm to detect dead code in repository {}:\n{}", repository.getName(), ex.getMessage());
+            log.error("Error running algorithm to detect dead code in repository {}:\n{}", repository.getUuid(), ex.getMessage());
             throw new AnalysisException("Error running algorithm to detect dead code: {}" + ex.getMessage(), ex);
         }
     }
@@ -153,7 +153,7 @@ public class AnalysisServiceImpl implements AnalysisService {
      * @param deadCodeOutput
      */
     private List<DeadCodeIssue> parseDeadCodeIssues(Repository repository, String deadCodeOutput) {
-        log.info("Creating instances of dead code issues for repository {}", repository.getName());
+        log.info("Creating instances of dead code issues for repository {}", repository.getUuid());
         repository.getLastAnalysisInformation().setStage(CREATING_DEAD_CODE_ISSUES);
 
         List<DeadCodeIssue> deadCodeIssues = new ArrayList<>();

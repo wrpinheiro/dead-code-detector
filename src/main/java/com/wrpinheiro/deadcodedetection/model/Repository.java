@@ -16,8 +16,6 @@ import java.util.Date;
 public class Repository {
     private String uuid;
 
-    private Long id;
-    private String name;
     private AnalysisStatus status;
 
     /**

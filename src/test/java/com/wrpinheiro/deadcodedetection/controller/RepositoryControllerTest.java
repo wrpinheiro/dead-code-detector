@@ -53,7 +53,7 @@ public class RepositoryControllerTest {
                 request, Repository.class);
 
         assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(entity.getBody().getName()).isEqualTo("jgraphlib");
+        assertThat(entity.getBody().getGithubRepository().getUrl()).isEqualTo("https://github.com/wrpinheiro/jgraphlib.git");
         assertThat(entity.getBody().getGithubRepository().getLanguage()).isEqualTo(Language.JAVA);
         assertThat(entity.getBody().getGithubRepository().getBranch()).isEqualTo("master");
     }
@@ -61,19 +61,22 @@ public class RepositoryControllerTest {
     // POST /api/repository/{uuid}
     @Test
     public void mustReturnRepositoryJustCreated() {
+        String url = "https://github.com/wrpinheiro/jgraphlib.git";
         RepositoryRequest request = new RepositoryRequest();
-        request.setUrl("https://github.com/wrpinheiro/jgraphlib.git");
+        request.setUrl(url);
 
         ResponseEntity<Repository> entityCreated = this.restTemplate.postForEntity("/api/repository",
                 request, Repository.class);
 
         assertThat(entityCreated.getStatusCode()).isEqualTo(HttpStatus.OK);
         Repository repoCreated = entityCreated.getBody();
+        String uuid = repoCreated.getUuid();
 
         ResponseEntity<Repository> entityRetrieved = this.restTemplate.getForEntity("/api/repository/" + repoCreated.getUuid(),
                 Repository.class);
 
         assertThat(entityRetrieved.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(entityRetrieved.getBody().getName()).isEqualTo("jgraphlib-example");
+        assertThat(entityRetrieved.getBody().getUuid()).isEqualTo(uuid);
+        assertThat(entityRetrieved.getBody().getGithubRepository().getUrl()).isEqualTo(assertThat(url));
     }
 }
