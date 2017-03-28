@@ -4,7 +4,7 @@ import com.wrpinheiro.deadcodedetection.model.Repository;
 import org.springframework.scheduling.annotation.Async;
 
 /**
- * Created by wrpinheiro on 3/24/17.
+ * @author wrpinheiro
  */
 public interface AnalysisService {
     @Async

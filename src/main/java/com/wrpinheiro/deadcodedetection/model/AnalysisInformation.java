@@ -6,7 +6,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Created by wrpinheiro on 3/27/17.
+ * @author wrpinheiro
  */
 @Data
 public class AnalysisInformation {

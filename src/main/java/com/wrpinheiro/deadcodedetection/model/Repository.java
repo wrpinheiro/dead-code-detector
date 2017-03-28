@@ -8,7 +8,7 @@ import lombok.Data;
 import java.util.Date;
 
 /**
- * Created by wrpinheiro on 3/21/17.
+ * @author wrpinheiro
  */
 @JsonDeserialize(builder = Repository.RepositoryBuilder.class)
 @Data

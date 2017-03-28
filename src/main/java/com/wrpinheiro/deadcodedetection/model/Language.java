@@ -1,7 +1,7 @@
 package com.wrpinheiro.deadcodedetection.model;
 
 /**
- * Created by wrpinheiro on 3/25/17.
+ * @author wrpinheiro
  */
 public enum Language {
     ADA("ada"), CPP("c++"), FORTRAN("fortran"), JAVA("java");

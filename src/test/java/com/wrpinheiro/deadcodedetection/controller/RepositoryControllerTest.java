@@ -19,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Test endpoint of Repository controller
  *
- * Created by wrpinheiro on 3/26/17.
+ * @author wrpinheiro
  */
 
 @RunWith(SpringJUnit4ClassRunner.class)

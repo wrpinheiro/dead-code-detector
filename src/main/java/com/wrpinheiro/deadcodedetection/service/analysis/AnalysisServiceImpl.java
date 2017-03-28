@@ -28,7 +28,7 @@ import static com.wrpinheiro.deadcodedetection.model.AnalysisInformation.Stage.D
 import static java.util.Arrays.asList;
 
 /**
- * Created by wrpinheiro on 3/24/17.
+ * @author wrpinheiro
  */
 @Slf4j
 @Service

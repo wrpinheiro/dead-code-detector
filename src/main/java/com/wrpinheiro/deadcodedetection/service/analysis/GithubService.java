@@ -5,7 +5,7 @@ import com.wrpinheiro.deadcodedetection.model.Repository;
 import java.nio.file.Path;
 
 /**
- * Created by wrpinheiro on 3/26/17.
+ * @author wrpinheiro
  */
 public interface GithubService {
     /**

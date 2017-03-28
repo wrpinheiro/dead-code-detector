@@ -9,7 +9,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Created by wrpinheiro on 3/26/17.
+ * @author wrpinheiro
  */
 @JsonDeserialize(builder = GithubRepository.GithubRepositoryBuilder.class)
 @Data

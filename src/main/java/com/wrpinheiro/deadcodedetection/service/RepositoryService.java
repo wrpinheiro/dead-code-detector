@@ -6,7 +6,7 @@ import com.wrpinheiro.deadcodedetection.model.Repository;
 import java.util.List;
 
 /**
- * Created by wrpinheiro on 3/23/17.
+ * @author wrpinheiro
  */
 public interface RepositoryService {
     Repository addRepository(String url, String branch, Language language);

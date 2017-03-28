@@ -13,7 +13,7 @@ import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toList;
 
 /**
- * Created by wrpinheiro on 3/24/17.
+ * @author wrpinheiro
  */
 @Component
 public class RepositoryDAOImpl implements RepositoryDAO {

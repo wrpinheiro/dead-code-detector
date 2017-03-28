@@ -14,7 +14,7 @@ import java.util.concurrent.TimeoutException;
 /**
  * A utility class to deal with process
  *
- * Created by wrpinheiro on 3/26/17.
+ * @author wrpinheiro
  */
 public class ProcessUtils {
     @Data

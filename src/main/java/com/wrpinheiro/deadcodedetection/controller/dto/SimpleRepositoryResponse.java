@@ -10,7 +10,7 @@ import java.util.Date;
 /**
  * A representation of repository without the list of dead code issues
  *
- * Created by wrpinheiro on 3/21/17.
+ * @author wrpinheiro
  */
 @Data
 public class SimpleRepositoryResponse {

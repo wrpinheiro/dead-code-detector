@@ -28,7 +28,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
 /**
- * Created by wrpinheiro on 3/22/17.
+ * @author wrpinheiro
  */
 @Component
 @Path("/repository")

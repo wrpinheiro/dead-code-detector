@@ -7,7 +7,7 @@ import lombok.ToString;
 /**
  * A dead code issue (or smell) representation
  *
- * Created by wrpinheiro on 3/25/17.
+ * @author wrpinheiro
  */
 @Data
 @ToString

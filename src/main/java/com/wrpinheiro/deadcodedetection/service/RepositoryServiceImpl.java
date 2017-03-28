@@ -19,7 +19,7 @@ import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
 import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
 
 /**
- * Created by wrpinheiro on 3/24/17.
+ * @author wrpinheiro
  */
 @Service
 public class RepositoryServiceImpl implements RepositoryService {

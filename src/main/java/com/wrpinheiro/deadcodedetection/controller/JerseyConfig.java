@@ -11,7 +11,7 @@ import javax.ws.rs.ApplicationPath;
 /**
  * Jersey configuration
  *
- * Created by wrpinheiro on 3/22/17.
+ * @author wrpinheiro
  */
 @Component
 @ApplicationPath("/")

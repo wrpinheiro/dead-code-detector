@@ -7,7 +7,7 @@ import lombok.Data;
 import java.util.Date;
 
 /**
- * Created by wrpinheiro on 3/27/17.
+ * @author wrpinheiro
  */
 @Data
 public class SimpleAnalysisInformationResponse {
