@@ -45,7 +45,7 @@ public class GithubServiceImpl implements GithubService {
         try {
             isRemoteRefAvailable(githubRepository);
 
-            File repositoryDir = cloneRepository(githubRepository);
+            File repositoryDir = cloneRepository(repository.getUuid(), githubRepository);
 
             // the analysis doesn't required the .git directory.
             removeDotGitDir(repositoryDir);
@@ -57,8 +57,8 @@ public class GithubServiceImpl implements GithubService {
         }
     }
 
-    private File cloneRepository(GithubRepository githubRepository) throws GitAPIException, IOException {
-        File repositoryDir = this.createRepositoryDirectory(githubRepository.getName());
+    private File cloneRepository(String uuid, GithubRepository githubRepository) throws GitAPIException, IOException {
+        File repositoryDir = this.createRepositoryDirectory(uuid, githubRepository.getName());
 
         log.info("Repository {} will be cloned to directory {}", githubRepository.getUrl(),
                 repositoryDir.getAbsolutePath());
@@ -90,10 +90,10 @@ public class GithubServiceImpl implements GithubService {
         }
     }
 
-    private File createRepositoryDirectory(String name) throws IOException {
+    private File createRepositoryDirectory(String uuid, String name) throws IOException {
         String repositoriesDirectory = dataDir + REPOSITORIES_SUBDIR;
 
-        Path path = Paths.get(repositoriesDirectory, name + "/");
+        Path path = Paths.get(repositoriesDirectory, uuid, name);
 
         if (Files.exists(path)) {
             deleteSubDirectoryStructure(path);
@@ -101,7 +101,7 @@ public class GithubServiceImpl implements GithubService {
 
         Files.createDirectories(path);
 
-        return Paths.get(repositoriesDirectory, name).toFile();
+        return path.toFile();
     }
 
     private void removeDotGitDir(File repositoryDir) throws IOException {
