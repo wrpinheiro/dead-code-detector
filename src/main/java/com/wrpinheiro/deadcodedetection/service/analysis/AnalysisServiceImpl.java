@@ -105,7 +105,7 @@ public class AnalysisServiceImpl implements AnalysisService {
             return Paths.get(UDB_FILE);
         } catch (Exception ex) {
             log.error("Error creating UDB file {}. Message: {}", UDB_FILE, ex.getMessage());
-            throw new AnalysisException("Error creating UDB file" + UDB_FILE + ". Message: " + ex.getMessage());
+            throw new AnalysisException("Error creating UDB file" + UDB_FILE + ". Message: " + ex.getMessage(), ex);
         }
     }
 
@@ -131,11 +131,13 @@ public class AnalysisServiceImpl implements AnalysisService {
             return output.getStdout();
         } catch (Exception ex) {
             log.error("Error running algorithm to detect dead code in repository {}:\n{}", repository.getName(), ex.getMessage());
-            throw new AnalysisException("Error running algorithm to detect dead code: {}" + ex.getMessage());
+            throw new AnalysisException("Error running algorithm to detect dead code: {}" + ex.getMessage(), ex);
         }
     }
 
     /**
+     * // TODO use these lines below in a unit test!!
+     *
      * The expected deadCodeOutput is something like:
      *
      * 0 = "@Class"
