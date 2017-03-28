@@ -18,6 +18,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.wrpinheiro.deadcodedetection.model.AnalysisInformation.Stage.*;
 import static java.util.Arrays.asList;
@@ -154,6 +156,10 @@ public class AnalysisServiceImpl implements AnalysisService {
      */
     private List<DeadCodeIssue> parseDeadCodeIssues(Repository repository, String deadCodeOutput) {
         log.info("Creating instances of dead code issues for repository {}", repository.getUuid());
+
+        Pattern filenamePattern = Pattern.compile(String.format(".*%s/%s/(.*)", repository.getUuid(), repository
+                .getGithubRepository().getName()));
+
         repository.getLastAnalysisInformation().setStage(CREATING_DEAD_CODE_ISSUES);
 
         List<DeadCodeIssue> deadCodeIssues = new ArrayList<>();
@@ -167,7 +173,7 @@ public class AnalysisServiceImpl implements AnalysisService {
             } else if (!line.equals("")){
                 String[] location = line.split(";");
 
-                deadCodeIssues.add(deadCodeLocationToInstance(lastType, location));
+                deadCodeIssues.add(deadCodeLocationToInstance(lastType, location, filenamePattern));
             }
         }
 
@@ -176,10 +182,17 @@ public class AnalysisServiceImpl implements AnalysisService {
         return deadCodeIssues;
     }
 
-    private DeadCodeIssue deadCodeLocationToInstance(String kind, String[] location) {
+    private DeadCodeIssue deadCodeLocationToInstance(String kind, String[] location, Pattern filenamePattern) {
+        String filename = location[2].trim();
+        Matcher filenameMatcher = filenamePattern.matcher(filename);
+
+        if (filenameMatcher.matches()) {
+            filename = filenameMatcher.group(1);
+        }
+
         return DeadCodeIssue.builder()
                 .kind(kind)
-                .filename(location[2].trim())
+                .filename(filename)
                 .fromLine(Integer.valueOf(location[4].trim()))
                 .toLine(Integer.valueOf(location[5].trim()))
                 .ref(location[0].trim())
