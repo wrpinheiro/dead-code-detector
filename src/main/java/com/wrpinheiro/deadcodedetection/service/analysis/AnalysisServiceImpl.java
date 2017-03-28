@@ -21,7 +21,10 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.wrpinheiro.deadcodedetection.model.AnalysisInformation.Stage.*;
+import static com.wrpinheiro.deadcodedetection.model.AnalysisInformation.Stage.CHECKING_DEAD_CODE;
+import static com.wrpinheiro.deadcodedetection.model.AnalysisInformation.Stage.CREATING_DEAD_CODE_ISSUES;
+import static com.wrpinheiro.deadcodedetection.model.AnalysisInformation.Stage.CREATING_UDB_FILE;
+import static com.wrpinheiro.deadcodedetection.model.AnalysisInformation.Stage.DONE;
 import static java.util.Arrays.asList;
 
 /**
@@ -126,32 +129,24 @@ public class AnalysisServiceImpl implements AnalysisService {
             log.debug("Finished algorithm to detect dead code in repository: {}", repository.getUuid());
 
             if (output.getExitCode() != 0) {
-                log.error("Error running algorithm to detect dead code in repository {}:\n{}", repository.getUuid(), output.getStderr());
+                log.error("Error running algorithm to detect dead code in repository {}:\n{}", repository.getUuid(),
+                        output.getStderr());
                 throw new AnalysisException("Error running algorithm to detect dead code.");
             }
 
             return output.getStdout();
         } catch (Exception ex) {
-            log.error("Error running algorithm to detect dead code in repository {}:\n{}", repository.getUuid(), ex.getMessage());
+            log.error("Error running algorithm to detect dead code in repository {}:\n{}", repository.getUuid(),
+                    ex.getMessage());
             throw new AnalysisException("Error running algorithm to detect dead code: {}" + ex.getMessage(), ex);
         }
     }
 
     /**
-     * // TODO use these lines below in a unit test!!
+     * The kind of dead code starts with an "@" and the information about the dead code (the file, lines, etc) and in a
+     * dot comma separated string
      *
-     * The expected deadCodeOutput is something like:
-     *
-     * 0 = "@Class"
-     * 1 = "\tMyBufferedReader;[File:;/Users/wrpinheiro/.deadCodeDetection/repos/wrpinheiro/diversos/jdk7post2/MyBufferedReader.java;Line:;5;14;]"
-     * 2 = "@Parameter"
-     * 3 = "\tGerenciadorBomba.main.args;[File:;/Users/wrpinheiro/.deadCodeDetection/repos/wrpinheiro/diversos/infoq/jdk7/GerenciadorBomba.java;Line:;13;13;]"
-     * 4 = "\tGerenciadorRecursosMultiCatch.main.args;[File:;/Users/wrpinheiro/.deadCodeDetection/repos/wrpinheiro/diversos/infoq/jdk7/GerenciadorRecursosMultiCatch.java;Line:;19;19;]"
-     * 5 = "\tInferenciaGenerics.main.args;[File:;/Users/wrpinheiro/.deadCodeDetection/repos/wrpinheiro/diversos/infoq/jdk7/InferenciaGenerics.java;Line:;8;8;]"
-     * 6 = "\tSeparadorLiteraisNumericos.main.args;[File:;/Users/wrpinheiro/.deadCodeDetection/repos/wrpinheiro/diversos/infoq/jdk7/SeparadorLiteraisNumericos.java;Line:;2;2;]"
-     *
-     * The kind of dead code starts with an "@" and the information about the dead code (the file, lines, etc) and in a dot comma separated string
-     *  @param repository
+     * @param repository
      * @param deadCodeOutput
      */
     private List<DeadCodeIssue> parseDeadCodeIssues(Repository repository, String deadCodeOutput) {

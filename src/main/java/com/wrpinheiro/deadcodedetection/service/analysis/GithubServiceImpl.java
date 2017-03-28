@@ -25,7 +25,7 @@ import static java.util.Comparator.reverseOrder;
 /**
  * Implementation of Github services
  *
- * Created by wrpinheiro on 3/26/17.
+ * @author wrpinheiro
  */
 @Slf4j
 @Service
