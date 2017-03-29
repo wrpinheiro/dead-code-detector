@@ -36,6 +36,11 @@ public class DeadCodeIssue {
     private Integer fromLine;
 
     /**
+     * The column the ref appears.
+     */
+    private Integer column;
+
+    /**
      * The last line that the dead code appears. Note that fromLine can be equal to toLine in the case of a dead
      * code with only one line.
      */

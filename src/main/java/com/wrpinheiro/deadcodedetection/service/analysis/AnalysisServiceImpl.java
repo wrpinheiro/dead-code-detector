@@ -234,7 +234,8 @@ public class AnalysisServiceImpl implements AnalysisService {
                 .kind(kind)
                 .filename(filename)
                 .fromLine(Integer.valueOf(location[4].trim()))
-                .toLine(Integer.valueOf(location[5].trim()))
+                .column(Integer.valueOf(location[5].trim()))
+                .toLine(Integer.valueOf(location[6].trim()))
                 .ref(location[0].trim())
                 .build();
     }

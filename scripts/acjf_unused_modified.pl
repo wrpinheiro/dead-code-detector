@@ -277,7 +277,7 @@ sub reportUnusedByKind {
             $lastkind = $thiskind;
 	    }
         print "\t";
-        print $ref->scope()->longname().";[File:;".$ref->file()->longname().";Line:;", $ref->line();
+        print $ref->scope()->longname().";[File:;".$ref->file()->longname().";Line:;", $ref->line().";".($ref->column()+1);
         my @endref = $ref->scope()->refs("end");
         print ";";
         if (@endref) {

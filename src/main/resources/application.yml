@@ -22,4 +22,4 @@ app:
     scitoolsHome: ${SCITOOLS_HOME:/Applications/scitools/bin/macosx}
     kindBlacklist: ${KIND_BLACKLIST:public;protected}
     kindWhitelist: ${KIND_WHITELIST:variable;parameter;method;function;procedure}
-    refBlackList: ${REF_BLACKLIST:serialVersionuid}
+    refBlackList: ${REF_BLACKLIST:serialVersionuid;lambda_expr_}
