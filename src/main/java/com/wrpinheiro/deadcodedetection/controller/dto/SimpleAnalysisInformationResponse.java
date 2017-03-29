@@ -22,7 +22,7 @@ public class SimpleAnalysisInformationResponse {
      * Create a simplified representation for the analysis information.
      * @param analysisInformation the complete analysis information model.
      */
-    public SimpleAnalysisInformationResponse(AnalysisInformation analysisInformation) {
+    public SimpleAnalysisInformationResponse(final AnalysisInformation analysisInformation) {
         this.startedAt = analysisInformation.getStartedAt();
         this.finishedAt = analysisInformation.getFinishedAt();
         this.stage = analysisInformation.getStage();

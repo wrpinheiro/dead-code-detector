@@ -33,7 +33,7 @@ public class JerseyConfig extends ResourceConfig {
         this.register(ApiListingResource.class);
         this.register(SwaggerSerializers.class);
 
-        BeanConfig config = new BeanConfig();
+        final BeanConfig config = new BeanConfig();
         config.setConfigId("dead-code-detection-service");
         config.setTitle("Dead Code Detection Service");
         config.setVersion("v1");

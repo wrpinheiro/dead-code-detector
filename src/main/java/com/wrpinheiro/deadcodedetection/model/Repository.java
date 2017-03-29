@@ -33,7 +33,7 @@ public class Repository {
      *
      * @param status the new status.
      */
-    public void setStatus(RepositoryStatus status) {
+    public void setStatus(final RepositoryStatus status) {
         this.status = status;
 
         if (this.getLastAnalysisInformation() != null) {

@@ -27,9 +27,8 @@ public class GithubRepository {
      * @return the owner of the repository.
      */
     public String getOwner() {
-        Pattern pattern = pattern = Pattern.compile(".*[/:](.*)/.*\\.git");
-
-        Matcher matcher = pattern.matcher(url);
+        final Pattern pattern = Pattern.compile(".*[/:](.*)/.*\\.git");
+        final Matcher matcher = pattern.matcher(url);
 
         return matcher.find()
                 ? matcher.group(1) :
@@ -42,9 +41,8 @@ public class GithubRepository {
      * @return the name of the repository.
      */
     public String getName() {
-        Pattern pattern = pattern = Pattern.compile(".*[/:].*/(.*)\\.git");
-
-        Matcher matcher = pattern.matcher(url);
+        final Pattern pattern = Pattern.compile(".*[/:].*/(.*)\\.git");
+        final Matcher matcher = pattern.matcher(url);
 
         return matcher.find()
                 ? matcher.group(1) :

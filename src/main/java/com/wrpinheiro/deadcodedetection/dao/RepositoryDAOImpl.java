@@ -22,7 +22,7 @@ public class RepositoryDAOImpl implements RepositoryDAO {
     private Map<String, Repository> repositories = new ConcurrentHashMap<>();
 
     @Override
-    public Repository save(Repository repository) {
+    public Repository save(final Repository repository) {
         repositories.put(repository.getUuid(), repository);
         return repository;
     }
@@ -35,21 +35,21 @@ public class RepositoryDAOImpl implements RepositoryDAO {
     }
 
     @Override
-    public Optional<Repository> findByUrlAndBranch(String url, String branch) {
+    public Optional<Repository> findByUrlAndBranch(final String url, final String branch) {
         return repositories.values()
                 .stream().filter(repo -> {
-                    GithubRepository githubRepository = repo.getGithubRepository();
+                    final GithubRepository githubRepository = repo.getGithubRepository();
                     return githubRepository.getUrl().equals(url) && githubRepository.getBranch().equals(branch);
                 }).findFirst();
     }
 
     @Override
-    public void remove(String uuid) {
+    public void remove(final String uuid) {
         this.repositories.remove(uuid);
     }
 
     @Override
-    public Repository findByUUID(String uuid) {
+    public Repository findByUUID(final String uuid) {
         return this.repositories.get(uuid);
     }
 }

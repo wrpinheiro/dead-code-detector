@@ -41,8 +41,8 @@ public class GithubServiceImpl implements GithubService {
      * @param repository repository with information the repo that will be cloned
      * @return the path to the local repository
      */
-    public Path cloneGitHubRepository(Repository repository) {
-        GithubRepository githubRepository = repository.getGithubRepository();
+    public Path cloneGitHubRepository(final Repository repository) {
+        final GithubRepository githubRepository = repository.getGithubRepository();
 
         log.info("Cloning repository {}", githubRepository.getUrl());
 
@@ -51,7 +51,7 @@ public class GithubServiceImpl implements GithubService {
         try {
             isRemoteRefAvailable(githubRepository);
 
-            File repositoryDir = cloneRepository(repository.getUuid(), githubRepository);
+            final File repositoryDir = cloneRepository(repository.getUuid(), githubRepository);
 
             // the analysis doesn't required the .git directory.
             removeDotGitDir(repositoryDir);
@@ -63,8 +63,9 @@ public class GithubServiceImpl implements GithubService {
         }
     }
 
-    private File cloneRepository(String uuid, GithubRepository githubRepository) throws GitAPIException, IOException {
-        File repositoryDir = this.createRepositoryDirectory(uuid, githubRepository.getName());
+    private File cloneRepository(final String uuid, final GithubRepository githubRepository) throws GitAPIException,
+            IOException {
+        final File repositoryDir = this.createRepositoryDirectory(uuid, githubRepository.getName());
 
         log.info("Repository {} will be cloned to directory {}", githubRepository.getUrl(),
                 repositoryDir.getAbsolutePath());
@@ -86,8 +87,9 @@ public class GithubServiceImpl implements GithubService {
      * @throws GitAPIException a general exception trying to access the repository
      * @throws AnalysisException when the branch chosen by user doesn't exist in the remote repository
      */
-    private void isRemoteRefAvailable(GithubRepository githubRepository) throws GitAPIException, AnalysisException {
-        Collection<Ref> refs = Git.lsRemoteRepository()
+    private void isRemoteRefAvailable(final GithubRepository githubRepository) throws GitAPIException,
+            AnalysisException {
+        final Collection<Ref> refs = Git.lsRemoteRepository()
                 .setRemote(githubRepository.getUrl()).call();
 
         if (!refs.stream().anyMatch(ref -> ref.getName().endsWith(githubRepository.getBranch()))) {
@@ -96,10 +98,10 @@ public class GithubServiceImpl implements GithubService {
         }
     }
 
-    private File createRepositoryDirectory(String uuid, String name) throws IOException {
-        String repositoriesDirectory = dataDir + REPOSITORIES_SUBDIR;
+    private File createRepositoryDirectory(final String uuid, final String name) throws IOException {
+        final String repositoriesDirectory = dataDir + REPOSITORIES_SUBDIR;
 
-        Path path = Paths.get(repositoriesDirectory, uuid, name);
+        final Path path = Paths.get(repositoriesDirectory, uuid, name);
 
         if (Files.exists(path)) {
             deleteSubDirectoryStructure(path);
@@ -110,12 +112,12 @@ public class GithubServiceImpl implements GithubService {
         return path.toFile();
     }
 
-    private void removeDotGitDir(File repositoryDir) throws IOException {
-        Path gitDir = Paths.get(repositoryDir.getAbsolutePath(), ".git");
+    private void removeDotGitDir(final File repositoryDir) throws IOException {
+        final Path gitDir = Paths.get(repositoryDir.getAbsolutePath(), ".git");
         deleteSubDirectoryStructure(gitDir);
     }
 
-    private void deleteSubDirectoryStructure(Path path) throws IOException {
+    private void deleteSubDirectoryStructure(final Path path) throws IOException {
         Files.walk(path, FileVisitOption.FOLLOW_LINKS)
                 .sorted(reverseOrder())
                 .map(Path::toFile)

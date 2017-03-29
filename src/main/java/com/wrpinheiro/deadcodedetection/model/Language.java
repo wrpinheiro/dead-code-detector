@@ -10,7 +10,7 @@ public enum Language {
 
     private final String strValue;
 
-    Language(String strValue) {
+    Language(final String strValue) {
         this.strValue = strValue;
     }
 
@@ -18,7 +18,7 @@ public enum Language {
         return this.strValue;
     }
 
-    public static Language fromString(String name) {
+    public static Language fromString(final String name) {
         return valueOf(name.toUpperCase());
     }
 }

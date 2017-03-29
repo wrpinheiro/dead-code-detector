@@ -31,7 +31,9 @@ public class RepositoryControllerTest {
     // GET /api/repository
     @Test
     public void mustReturnAListOfRepositories() {
-        ResponseEntity<Repository[]> entity = this.restTemplate.getForEntity("/api/repository", Repository[].class);
+        final ResponseEntity<Repository[]> entity = this.restTemplate.getForEntity("/api/repository",
+                Repository[].class);
+
         assertThat(entity.getBody()).isNotNull();
         assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
@@ -39,19 +41,21 @@ public class RepositoryControllerTest {
     // POST /api/repository
     @Test
     public void mustReturnErrorDueToMissingNameAndUrl() {
-        RepositoryRequest request = new RepositoryRequest();
-        ResponseEntity<Map> entity = this.restTemplate.postForEntity("/api/repository",
+        final RepositoryRequest request = new RepositoryRequest();
+        final ResponseEntity<Map> entity = this.restTemplate.postForEntity("/api/repository",
                 request, Map.class);
+
         assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.PRECONDITION_FAILED);
     }
 
     // POST /api/repository
     @Test
     public void mustCreateARepositoryWithBranchAndDefaultLanguage() {
-        RepositoryRequest request = new RepositoryRequest();
+        final RepositoryRequest request = new RepositoryRequest();
+
         request.setUrl("https://github.com/wrpinheiro/jgraphlib.git");
 
-        ResponseEntity<Repository> entity = this.restTemplate.postForEntity("/api/repository",
+        final ResponseEntity<Repository> entity = this.restTemplate.postForEntity("/api/repository",
                 request, Repository.class);
 
         assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -64,18 +68,20 @@ public class RepositoryControllerTest {
     // POST /api/repository/{uuid}
     @Test
     public void mustReturnRepositoryJustCreated() {
-        String url = "https://github.com/wrpinheiro/jgraphlib.git";
-        RepositoryRequest request = new RepositoryRequest();
+        final String url = "https://github.com/wrpinheiro/jgraphlib.git";
+        final RepositoryRequest request = new RepositoryRequest();
+
         request.setUrl(url);
 
-        ResponseEntity<Repository> entityCreated = this.restTemplate.postForEntity("/api/repository",
+        final ResponseEntity<Repository> entityCreated = this.restTemplate.postForEntity("/api/repository",
                 request, Repository.class);
 
         assertThat(entityCreated.getStatusCode()).isEqualTo(HttpStatus.OK);
-        Repository repoCreated = entityCreated.getBody();
-        String uuid = repoCreated.getUuid();
 
-        ResponseEntity<Repository> entityRetrieved = this.restTemplate.getForEntity("/api/repository/"
+        final Repository repoCreated = entityCreated.getBody();
+        final String uuid = repoCreated.getUuid();
+
+        final ResponseEntity<Repository> entityRetrieved = this.restTemplate.getForEntity("/api/repository/"
                         + repoCreated.getUuid(), Repository.class);
 
         assertThat(entityRetrieved.getStatusCode()).isEqualTo(HttpStatus.OK);

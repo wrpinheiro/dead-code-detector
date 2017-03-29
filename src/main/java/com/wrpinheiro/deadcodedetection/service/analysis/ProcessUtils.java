@@ -41,15 +41,15 @@ public class ProcessUtils {
      * @throws TimeoutException when the process times out
      * @throws IOException when the command could not be found
      */
-    public static ProcessOutput runProcess(ProcessCommand processCommand)
+    public static ProcessOutput runProcess(final ProcessCommand processCommand)
             throws InterruptedException, TimeoutException, IOException {
-        ByteArrayOutputStream boa = new ByteArrayOutputStream();
+        final ByteArrayOutputStream boa = new ByteArrayOutputStream();
 
-        ProcessResult processResult = new ProcessExecutor().command(processCommand.getCommands())
+        final ProcessResult processResult = new ProcessExecutor().command(processCommand.getCommands())
                 .timeout(processCommand.getTimeout(), TimeUnit.SECONDS)
                 .readOutput(true).redirectError(boa).execute();
 
-        String errorOutput = new String(boa.toByteArray(), "UTF-8");
+        final String errorOutput = new String(boa.toByteArray(), "UTF-8");
 
         return ProcessOutput.builder().exitCode(processResult.getExitValue())
             .stdout(processResult.getOutput().getString())

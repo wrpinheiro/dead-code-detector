@@ -6,11 +6,11 @@ package com.wrpinheiro.deadcodedetection.exceptions;
  * @author wrpinheiro
  */
 public class AnalysisException extends RuntimeException {
-    public AnalysisException(String message) {
+    public AnalysisException(final String message) {
         super(message);
     }
 
-    public AnalysisException(String message, Throwable cause) {
+    public AnalysisException(final String message, final Throwable cause) {
         super(message, cause);
     }
 }

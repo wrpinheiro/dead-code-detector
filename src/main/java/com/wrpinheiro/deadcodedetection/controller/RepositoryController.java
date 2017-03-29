@@ -64,7 +64,7 @@ public class RepositoryController {
     })
     @POST
     public Repository addRepository(@ApiParam(value = "Repository to be added and analyzed. The supported languages "
-            + "are: JAVA, ADA, CPP and FORTRAN") RepositoryRequest repositoryRequest) {
+            + "are: JAVA, ADA, CPP and FORTRAN") final RepositoryRequest repositoryRequest) {
 
         try {
             if (repositoryRequest.getUrl() == null) {
@@ -88,8 +88,8 @@ public class RepositoryController {
     @GET
     @Path("/{repositoryUUID}")
     public Repository getRepositoryIssues(@ApiParam(name = "repositoryUUID", value = "the repository uuid to search")
-                                          @PathParam("repositoryUUID") String repositoryUUID) {
-        Repository repository = repositoryService.findByUUID(repositoryUUID);
+                                          @PathParam("repositoryUUID") final String repositoryUUID) {
+        final Repository repository = repositoryService.findByUUID(repositoryUUID);
 
         if (repository == null) {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
@@ -110,9 +110,9 @@ public class RepositoryController {
     })
     @Path("{repositoryUUID}/analyze")
     public Repository analyzeRepository(@ApiParam(name = "repositoryUUID", value = "The repository UUID to be analyzed")
-                                        @PathParam("repositoryUUID") String repositoryUUID) {
+                                        @PathParam("repositoryUUID") final String repositoryUUID) {
         try {
-            Repository repository = repositoryService.findByUUID(repositoryUUID);
+            final Repository repository = repositoryService.findByUUID(repositoryUUID);
 
             if (repository == null) {
                 throw new WebApplicationException(Response.Status.NOT_FOUND);
@@ -138,9 +138,9 @@ public class RepositoryController {
     })
     @Path("{repositoryUUID}")
     public Repository removeRepository(@ApiParam(name = "repositoryUUID", value = "The repository UUID to remove")
-                                       @PathParam("repositoryUUID") String repositoryUUID) {
+                                       @PathParam("repositoryUUID") final String repositoryUUID) {
         try {
-            Repository repository = repositoryService.findByUUID(repositoryUUID);
+            final Repository repository = repositoryService.findByUUID(repositoryUUID);
 
             if (repository == null) {
                 throw new WebApplicationException(Response.Status.NOT_FOUND);

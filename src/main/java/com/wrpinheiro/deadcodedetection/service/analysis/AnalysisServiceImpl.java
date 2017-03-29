@@ -5,6 +5,7 @@ import static com.wrpinheiro.deadcodedetection.model.AnalysisInformation.Stage.C
 import static com.wrpinheiro.deadcodedetection.model.AnalysisInformation.Stage.CREATING_UDB_FILE;
 import static com.wrpinheiro.deadcodedetection.model.AnalysisInformation.Stage.DONE;
 import static java.util.Arrays.asList;
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 import com.wrpinheiro.deadcodedetection.exceptions.AnalysisException;
 import com.wrpinheiro.deadcodedetection.model.AnalysisInformation;
@@ -50,21 +51,21 @@ public class AnalysisServiceImpl implements AnalysisService {
 
     @Override
     @Async
-    public void analyze(Repository repository) {
+    public void analyze(final Repository repository) {
         log.info("Starting analysis for repository {}", repository.getUuid());
 
-        AnalysisInformation analysisInformation = new AnalysisInformation();
+        final AnalysisInformation analysisInformation = new AnalysisInformation();
         analysisInformation.setStartedAt(new Date());
 
         repository.setStatus(RepositoryStatus.PROCESSING);
         repository.setLastAnalysisInformation(analysisInformation);
 
         try {
-            Path repositoryDir = githubService.cloneGitHubRepository(repository);
-            Path udbFile = createUDBFile(repository, repositoryDir, dataDir);
-            String deadCodeIssuesOutput = checkDeadCodeAnalysis(repository, udbFile);
+            final Path repositoryDir = githubService.cloneGitHubRepository(repository);
+            final Path udbFile = createUDBFile(repository, repositoryDir, dataDir);
+            final String deadCodeIssuesOutput = checkDeadCodeAnalysis(repository, udbFile);
 
-            List<DeadCodeIssue> deadCodeIssues = parseDeadCodeIssues(repository, deadCodeIssuesOutput);
+            final List<DeadCodeIssue> deadCodeIssues = parseDeadCodeIssues(repository, deadCodeIssuesOutput);
 
             analysisInformation.setFinishedAt(new Date());
             analysisInformation.setDeadCodeIssues(deadCodeIssues);
@@ -81,7 +82,7 @@ public class AnalysisServiceImpl implements AnalysisService {
         }
     }
 
-    private Path createUDBFile(Repository repository, Path repositoryDir, String dataDir) {
+    private Path createUDBFile(final Repository repository, final Path repositoryDir, final String dataDir) {
         log.info("Creating UDB file for repository {}", repository.getUuid());
         repository.getLastAnalysisInformation().setStage(CREATING_UDB_FILE);
 
@@ -93,7 +94,7 @@ public class AnalysisServiceImpl implements AnalysisService {
                     repository.getGithubRepository().getLanguage().getStrValue(), "add", repositoryDir.toString(),
                     "analyze"));
 
-            ProcessUtils.ProcessOutput output = ProcessUtils.runProcess(ProcessUtils.ProcessCommand.builder()
+            final ProcessUtils.ProcessOutput output = ProcessUtils.runProcess(ProcessUtils.ProcessCommand.builder()
                     .commands(asList(UND_EXECUTABLE, "create", "-db", UDB_FILE, "-languages", repository
                                     .getGithubRepository().getLanguage().getStrValue(), "add", repositoryDir.toString(),
                             "analyze")).timeout(60).build());
@@ -101,7 +102,8 @@ public class AnalysisServiceImpl implements AnalysisService {
             if (output.getExitCode() != 0) {
                 log.info("Error creating UDB file for repository: {}.", repository.getUuid());
 
-                String logs = String.format("\n\nStdout: %s\n\nStderr: %s\n\n", output.getStdout(), output.getStderr());
+                final String logs = String.format("\n\nStdout: %s\n\nStderr: %s\n\n", output.getStdout(),
+                        output.getStderr());
                 log.error("Error creating UDB file\n{}", logs);
 
                 throw new AnalysisException("Error creating UDB file: " + UDB_FILE);
@@ -116,7 +118,7 @@ public class AnalysisServiceImpl implements AnalysisService {
         }
     }
 
-    private String checkDeadCodeAnalysis(Repository repository, Path udbFile) {
+    private String checkDeadCodeAnalysis(final Repository repository, final Path udbFile) {
         log.info("Running script to find dead code in repository {}", repository.getUuid());
         repository.getLastAnalysisInformation().setStage(CHECKING_DEAD_CODE);
 
@@ -124,7 +126,7 @@ public class AnalysisServiceImpl implements AnalysisService {
         final String UNUSED_CODE_SCRIPT = scriptsDir + "/acjf_unused_modified.pl";
 
         try {
-            ProcessUtils.ProcessOutput output = ProcessUtils.runProcess(ProcessUtils.ProcessCommand.builder()
+            final ProcessUtils.ProcessOutput output = ProcessUtils.runProcess(ProcessUtils.ProcessCommand.builder()
                     .commands(asList(UPERL_FILE, UNUSED_CODE_SCRIPT, "-db",
                             udbFile.toAbsolutePath().toString(), "-byKind")).timeout(60).build());
 
@@ -153,24 +155,24 @@ public class AnalysisServiceImpl implements AnalysisService {
      * @param repository the repository related to the dead code issues
      * @param deadCodeOutput the string representing the dead code issues
      */
-    private List<DeadCodeIssue> parseDeadCodeIssues(Repository repository, String deadCodeOutput) {
+    private List<DeadCodeIssue> parseDeadCodeIssues(final Repository repository, final String deadCodeOutput) {
         log.info("Creating instances of dead code issues for repository {}", repository.getUuid());
 
-        Pattern filenamePattern = Pattern.compile(String.format(".*%s/%s/(.*)", repository.getUuid(), repository
+        final Pattern filenamePattern = Pattern.compile(String.format(".*%s/%s/(.*)", repository.getUuid(), repository
                 .getGithubRepository().getName()));
+        final List<DeadCodeIssue> deadCodeIssues = new ArrayList<>();
 
         repository.getLastAnalysisInformation().setStage(CREATING_DEAD_CODE_ISSUES);
 
-        List<DeadCodeIssue> deadCodeIssues = new ArrayList<>();
-
         String lastType = "";
         String line;
-        for (String str: deadCodeOutput.split("\\?")) {
+
+        for (final String str: deadCodeOutput.split("\\?")) {
             line = str.trim();
-            if (line.startsWith("@")) {
+            if (line.charAt(0) == '@') {
                 lastType = line.substring(1);
-            } else if (!line.equals("")) {
-                String[] location = line.split(";");
+            } else if (isNotEmpty(line)) {
+                final String[] location = line.split(";");
 
                 deadCodeIssues.add(deadCodeLocationToInstance(lastType, location, filenamePattern));
             }
@@ -181,9 +183,10 @@ public class AnalysisServiceImpl implements AnalysisService {
         return deadCodeIssues;
     }
 
-    private DeadCodeIssue deadCodeLocationToInstance(String kind, String[] location, Pattern filenamePattern) {
+    private DeadCodeIssue deadCodeLocationToInstance(final String kind, final String[] location,
+                                                     final Pattern filenamePattern) {
         String filename = location[2].trim();
-        Matcher filenameMatcher = filenamePattern.matcher(filename);
+        final Matcher filenameMatcher = filenamePattern.matcher(filename);
 
         if (filenameMatcher.matches()) {
             filename = filenameMatcher.group(1);

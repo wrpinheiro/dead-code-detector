@@ -51,14 +51,14 @@ public class RepositoryServiceImpl implements RepositoryService {
      * @param language the language of the repository
      * @return the just added repository
      */
-    public Repository addRepository(String url, String branch, Language language) {
+    public Repository addRepository(final String url, final String branch, final Language language) {
         if (repositoryDAO.findByUrlAndBranch(url, branch).isPresent()) {
             throw new DuplicatedEntity(String.format("Repository with url %s and branch %s already exists. If you "
                     + "want to analyze this repository execute the endpoint repository/{repository.uuid}/analyze",
                     url, branch));
         }
 
-        Repository repository = Repository.builder()
+        final Repository repository = Repository.builder()
                 .githubRepository(
                         GithubRepository
                                 .builder()
@@ -71,7 +71,7 @@ public class RepositoryServiceImpl implements RepositoryService {
                 .createdAt(new Date())
                 .build();
 
-        Repository newRepository = this.repositoryDAO.save(repository);
+        final Repository newRepository = this.repositoryDAO.save(repository);
 
         analyze(newRepository);
 
@@ -84,7 +84,7 @@ public class RepositoryServiceImpl implements RepositoryService {
      * @param repository the repository to be analyzed
      */
     @Override
-    public void analyze(Repository repository) {
+    public void analyze(final Repository repository) {
         if (repository.getStatus().equals(RepositoryStatus.PROCESSING)) {
             throw new InvalidStateException("Can't analyze a repository already being analyzed");
         }
@@ -99,7 +99,7 @@ public class RepositoryServiceImpl implements RepositoryService {
      * @param repository the repository to be removed
      */
     @Override
-    public void removeRepository(Repository repository) {
+    public void removeRepository(final Repository repository) {
         if (repository.getStatus().equals(RepositoryStatus.PROCESSING)) {
             throw new InvalidStateException("Could not remove a repository while being analyzed");
         }
@@ -112,10 +112,7 @@ public class RepositoryServiceImpl implements RepositoryService {
     }
 
     @Override
-    public Repository findByUUID(String repositoryUUID) {
+    public Repository findByUUID(final String repositoryUUID) {
         return repositoryDAO.findByUUID(repositoryUUID);
     }
-
-
-
 }

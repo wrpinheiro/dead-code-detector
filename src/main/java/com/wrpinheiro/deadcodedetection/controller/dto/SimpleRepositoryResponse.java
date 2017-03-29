@@ -24,7 +24,7 @@ public class SimpleRepositoryResponse {
     /**
      * Create the Simple Repository and fill its properties with values from the attribute repository.
      */
-    public SimpleRepositoryResponse(Repository repository) {
+    public SimpleRepositoryResponse(final Repository repository) {
         this.uuid = repository.getUuid();
         this.githubRepository = repository.getGithubRepository();
         this.status = repository.getStatus();
