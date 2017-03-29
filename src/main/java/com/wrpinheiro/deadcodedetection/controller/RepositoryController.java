@@ -4,7 +4,10 @@ import com.wrpinheiro.deadcodedetection.controller.dto.RepositoryRequest;
 import com.wrpinheiro.deadcodedetection.controller.dto.SimpleRepositoryResponse;
 import com.wrpinheiro.deadcodedetection.exceptions.DuplicatedEntity;
 import com.wrpinheiro.deadcodedetection.exceptions.InvalidStateException;
+import com.wrpinheiro.deadcodedetection.exceptions.PaginationException;
+import com.wrpinheiro.deadcodedetection.model.Paginator;
 import com.wrpinheiro.deadcodedetection.model.Repository;
+import com.wrpinheiro.deadcodedetection.service.PaginationService;
 import com.wrpinheiro.deadcodedetection.service.RepositoryService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -17,14 +20,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 
 /**
@@ -41,14 +37,33 @@ public class RepositoryController {
     @Autowired
     private RepositoryService repositoryService;
 
-    @ApiOperation(value = "List all repositories analyzed. This is a simplified view of repository without the code "
-            + "smells.", response = SimpleRepositoryResponse.class, responseContainer = "List")
-    @ApiResponses(value = @ApiResponse(code = 200, message = "Zero or more repositories found",
-            responseContainer = "List", response = Repository.class))
+    @Autowired
+    private PaginationService paginationService;
+
+    @ApiOperation(value = "List all repositories analyzed, sorted by the Github repository URL. This is a simplified "
+            + "view of the repository without the code issues.", response = SimpleRepositoryResponse.class,
+            responseContainer = "Paginator")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Zero or more repositories found",  responseContainer = "List",
+                    response = Repository.class),
+            @ApiResponse(code = 412, message = "Parameters page and pageSize must be equal or greater than 1")
+    })
     @GET
-    public List<SimpleRepositoryResponse> getRepositories() {
-        return repositoryService.findAll().stream().map(repository -> new SimpleRepositoryResponse(repository))
-                .collect(Collectors.toList());
+    public Paginator<SimpleRepositoryResponse> getRepositories(
+            @ApiParam(value="the page to be shown") @DefaultValue("1") @QueryParam("page") Integer page,
+            @ApiParam(value="the max number of elements per page") @DefaultValue("10") @QueryParam("pageSize")
+                    Integer pageSize) {
+        try {
+            List<SimpleRepositoryResponse> response = repositoryService
+                    .findAll()
+                    .stream()
+                    .map(repository -> new SimpleRepositoryResponse(repository))
+                    .collect(Collectors.toList());
+
+            return paginationService.getPage(response, page, pageSize);
+        } catch (PaginationException ex) {
+            throw new WebApplicationException(ex, Response.Status.PRECONDITION_FAILED);
+        }
     }
 
     /**

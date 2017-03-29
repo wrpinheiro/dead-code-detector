@@ -31,8 +31,8 @@ public class RepositoryControllerTest {
     // GET /api/repository
     @Test
     public void mustReturnAListOfRepositories() {
-        final ResponseEntity<Repository[]> entity = this.restTemplate.getForEntity("/api/repository",
-                Repository[].class);
+        final ResponseEntity<Object> entity = this.restTemplate.getForEntity("/api/repository",
+                Object.class);
 
         assertThat(entity.getBody()).isNotNull();
         assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
