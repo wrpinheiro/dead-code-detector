@@ -22,7 +22,7 @@ repositories {
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
-project.version = '0.0.9'
+project.version = '0.0.10'
 
 jar {
     baseName = 'dead-code-detection-service'

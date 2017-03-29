@@ -5,6 +5,8 @@ import static com.wrpinheiro.deadcodedetection.model.AnalysisInformation.Stage.C
 import static com.wrpinheiro.deadcodedetection.model.AnalysisInformation.Stage.CREATING_UDB_FILE;
 import static com.wrpinheiro.deadcodedetection.model.AnalysisInformation.Stage.DONE;
 import static java.util.Arrays.asList;
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 import com.wrpinheiro.deadcodedetection.exceptions.AnalysisException;
@@ -22,7 +24,6 @@ import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -45,6 +46,15 @@ public class AnalysisServiceImpl implements AnalysisService {
 
     @Value("${app.analyzer.scitoolsHome}")
     private String scitoolsHome;
+
+    @Value("#{'${app.analyzer.kindBlacklist}'.toLowerCase().split(';')}")
+    private List<String> kindBlacklist;
+
+    @Value("#{'${app.analyzer.kindWhitelist}'.toLowerCase().split(';')}")
+    private List<String> kindWhitelist;
+
+    @Value("#{'${app.analyzer.refBlackList}'.toLowerCase().split(';')}")
+    private List<String> refBlackList;
 
     @Autowired
     private GithubService githubService;
@@ -158,6 +168,8 @@ public class AnalysisServiceImpl implements AnalysisService {
     private List<DeadCodeIssue> parseDeadCodeIssues(final Repository repository, final String deadCodeOutput) {
         log.info("Creating instances of dead code issues for repository {}", repository.getUuid());
 
+        log.info(deadCodeOutput);
+
         final Pattern filenamePattern = Pattern.compile(String.format(".*%s/%s/(.*)", repository.getUuid(), repository
                 .getGithubRepository().getName()));
         final List<DeadCodeIssue> deadCodeIssues = new ArrayList<>();
@@ -169,18 +181,44 @@ public class AnalysisServiceImpl implements AnalysisService {
 
         for (final String str: deadCodeOutput.split("\\?")) {
             line = str.trim();
-            if (line.charAt(0) == '@') {
-                lastType = line.substring(1);
-            } else if (isNotEmpty(line)) {
-                final String[] location = line.split(";");
+            if (isNotEmpty(line)) {
+                if (line.charAt(0) == '@') {
+                    lastType = line.substring(1);
+                } else {
+                    final String[] location = line.split(";");
 
-                deadCodeIssues.add(deadCodeLocationToInstance(lastType, location, filenamePattern));
+                    deadCodeIssues.add(deadCodeLocationToInstance(lastType, location, filenamePattern));
+                }
             }
         }
 
-        deadCodeIssues.sort(Comparator.comparing(DeadCodeIssue::getFilename));
+        return filterValidIssuesAndSort(deadCodeIssues);
+    }
 
-        return deadCodeIssues;
+    /**
+     * <p>Checks if a dead code issue is valid based on kind and ref.
+     *
+     * An issue is considered valid:
+     * * kind does not contain any word in the kind blacklist
+     * * kind contains at least one word in the kind whitelis
+     * * ref does not contain any word in the ref blacklist.</p>
+     *
+     * @param deadCodeIssue the issue to be checked
+     * @return true if the issue is valid or false otherwise
+     */
+    private boolean isValidKindAndRef(final DeadCodeIssue deadCodeIssue) {
+        final String kind = deadCodeIssue.getKind().toLowerCase();
+        final String ref = deadCodeIssue.getRef().toLowerCase();
+
+        return !kindBlacklist.stream().anyMatch(kindBlacklisted -> kind.contains(kindBlacklisted))
+                && kindWhitelist.stream().anyMatch(kindWhitelisted -> kind.contains(kindWhitelisted))
+                && !refBlackList.stream().anyMatch(refBlacklisted -> ref.contains(refBlacklisted));
+    }
+
+    private List<DeadCodeIssue> filterValidIssuesAndSort(final List<DeadCodeIssue> deadCodeIssues) {
+        return deadCodeIssues.stream()
+                .filter(this::isValidKindAndRef)
+                .sorted(comparing(DeadCodeIssue::getFilename)).collect(toList());
     }
 
     private DeadCodeIssue deadCodeLocationToInstance(final String kind, final String[] location,

@@ -20,3 +20,6 @@ app:
     dataDir: ${ANALYZER_REPO_DIR:/Users/wrpinheiro/.deadCodeDetection/}
     scriptsDir: ${APP_SCRIPTS_DIR:/Users/wrpinheiro/mystuff/crossover/dead-code-detection/scripts/}
     scitoolsHome: ${SCITOOLS_HOME:/Applications/scitools/bin/macosx}
+    kindBlacklist: ${KIND_BLACKLIST:public;protected}
+    kindWhitelist: ${KIND_WHITELIST:variable;parameter;method;function;procedure}
+    refBlackList: ${REF_BLACKLIST:serialVersionuid}
