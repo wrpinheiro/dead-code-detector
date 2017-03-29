@@ -5,8 +5,10 @@ import com.wrpinheiro.deadcodedetection.controller.dto.SimpleRepositoryResponse;
 import com.wrpinheiro.deadcodedetection.exceptions.DuplicatedEntity;
 import com.wrpinheiro.deadcodedetection.exceptions.InvalidStateException;
 import com.wrpinheiro.deadcodedetection.exceptions.PaginationException;
+import com.wrpinheiro.deadcodedetection.model.DeadCodeIssue;
 import com.wrpinheiro.deadcodedetection.model.Paginator;
 import com.wrpinheiro.deadcodedetection.model.Repository;
+import com.wrpinheiro.deadcodedetection.model.RepositoryStatus;
 import com.wrpinheiro.deadcodedetection.service.PaginationService;
 import com.wrpinheiro.deadcodedetection.service.RepositoryService;
 import io.swagger.annotations.Api;
@@ -96,13 +98,36 @@ public class RepositoryController {
     /**
      * API operation to get the information of a repository.
      */
-    @ApiOperation(value = "List the dead code issues found in the repository.", response = Repository.class)
+    @ApiOperation(value = "Show details of a repository without the dead code issues.",
+            response = SimpleRepositoryResponse.class)
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "The repository created", response = Repository.class),
+            @ApiResponse(code = 200, message = "The repository details", response = Repository.class),
             @ApiResponse(code = 404, message = "Repository with the requested uuid could not found"),})
     @GET
     @Path("/{repositoryUUID}")
-    public Repository getRepositoryIssues(@ApiParam(name = "repositoryUUID", value = "the repository uuid to search")
+    public SimpleRepositoryResponse getRepositoryIssues(@ApiParam(name = "repositoryUUID",
+            value = "the repository uuid to search")  @PathParam("repositoryUUID") final String repositoryUUID) {
+        final Repository repository = repositoryService.findByUUID(repositoryUUID);
+
+        if (repository == null) {
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        }
+
+        return new SimpleRepositoryResponse(repository);
+    }
+
+    /**
+     * API operation to get the issues of a repository.
+     */
+    @ApiOperation(value = "List the issues (dead code) found in the repository.", response = DeadCodeIssue.class,
+        responseContainer = "List")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "The issues of a repository", response = DeadCodeIssue.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "could not find repository with the requested uuid"),
+            @ApiResponse(code = 412, message = "Can't return issues of a repository with status different from COMPLETED")})
+    @GET
+    @Path("/{repositoryUUID}/issues")
+    public List<DeadCodeIssue> getDeadCodeIssues(@ApiParam(name = "repositoryUUID", value = "the repository uuid to search")
                                           @PathParam("repositoryUUID") final String repositoryUUID) {
         final Repository repository = repositoryService.findByUUID(repositoryUUID);
 
@@ -110,7 +135,12 @@ public class RepositoryController {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
 
-        return repository;
+        if (repository.getLastAnalysisInformation() == null ||
+                repository.getStatus() != RepositoryStatus.COMPLETED) {
+            throw new WebApplicationException(Response.Status.PRECONDITION_FAILED);
+        }
+
+        return repository.getLastAnalysisInformation().getDeadCodeIssues();
     }
 
     /**
