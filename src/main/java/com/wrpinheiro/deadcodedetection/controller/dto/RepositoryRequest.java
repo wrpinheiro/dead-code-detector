@@ -5,6 +5,8 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**
+ * The request model used to create a new repository.
+ *
  * @author wrpinheiro
  */
 @Data

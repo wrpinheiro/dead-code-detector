@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import javax.ws.rs.ApplicationPath;
 
 /**
- * Jersey configuration
+ * Jersey configuration.
  *
  * @author wrpinheiro
  */
@@ -17,12 +17,18 @@ import javax.ws.rs.ApplicationPath;
 @ApplicationPath("/")
 public class JerseyConfig extends ResourceConfig {
 
+    /**
+     * Registers the controller with Jerset and configure Swagger.
+     */
     public JerseyConfig() {
         register(RepositoryController.class);
 
         this.configureSwagger();
     }
 
+    /**
+     * Configure swagger.
+     */
     private void configureSwagger() {
         this.register(ApiListingResource.class);
         this.register(SwaggerSerializers.class);

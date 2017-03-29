@@ -8,6 +8,8 @@ import lombok.Data;
 import java.util.Date;
 
 /**
+ * A model representing a repository.
+ *
  * @author wrpinheiro
  */
 @JsonDeserialize(builder = Repository.RepositoryBuilder.class)
@@ -16,32 +18,30 @@ import java.util.Date;
 public class Repository {
     private String uuid;
 
-    private AnalysisStatus status;
+    private RepositoryStatus status;
 
-    /**
-     * Date when the repository was added
-     */
     private Date createdAt;
 
-    /**
-     * Date when the user requested the repository analysis (note that this is not the same
-     * date/time the analysis started, because the analysis is executed asynchronously.
-     */
     private Date lastAnalysisRequested;
 
     private GithubRepository githubRepository;
 
     private AnalysisInformation lastAnalysisInformation;
 
-    public void setStatus(AnalysisStatus status) {
+    /**
+     * Set the status of the repository. Guarantee to clear dependent attributes.
+     *
+     * @param status the new status.
+     */
+    public void setStatus(RepositoryStatus status) {
         this.status = status;
 
         if (this.getLastAnalysisInformation() != null) {
-            if (!status.equals(AnalysisStatus.FAILED)) {
+            if (!status.equals(RepositoryStatus.FAILED)) {
                 this.getLastAnalysisInformation().setErrorMessage(null);
             }
 
-            if (!status.equals(AnalysisStatus.COMPLETED)) {
+            if (!status.equals(RepositoryStatus.COMPLETED)) {
                 this.getLastAnalysisInformation().setDeadCodeIssues(null);
             }
         }

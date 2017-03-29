@@ -1,7 +1,7 @@
 package com.wrpinheiro.deadcodedetection.exceptions;
 
 /**
- * Represents an exception thrown by the analyzer
+ * Represents an exception thrown by the analyzer.
  *
  * @author wrpinheiro
  */

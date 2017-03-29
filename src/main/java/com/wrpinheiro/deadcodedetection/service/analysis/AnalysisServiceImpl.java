@@ -1,10 +1,16 @@
 package com.wrpinheiro.deadcodedetection.service.analysis;
 
+import static com.wrpinheiro.deadcodedetection.model.AnalysisInformation.Stage.CHECKING_DEAD_CODE;
+import static com.wrpinheiro.deadcodedetection.model.AnalysisInformation.Stage.CREATING_DEAD_CODE_ISSUES;
+import static com.wrpinheiro.deadcodedetection.model.AnalysisInformation.Stage.CREATING_UDB_FILE;
+import static com.wrpinheiro.deadcodedetection.model.AnalysisInformation.Stage.DONE;
+import static java.util.Arrays.asList;
+
 import com.wrpinheiro.deadcodedetection.exceptions.AnalysisException;
 import com.wrpinheiro.deadcodedetection.model.AnalysisInformation;
-import com.wrpinheiro.deadcodedetection.model.AnalysisStatus;
 import com.wrpinheiro.deadcodedetection.model.DeadCodeIssue;
 import com.wrpinheiro.deadcodedetection.model.Repository;
+import com.wrpinheiro.deadcodedetection.model.RepositoryStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,13 +27,9 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.wrpinheiro.deadcodedetection.model.AnalysisInformation.Stage.CHECKING_DEAD_CODE;
-import static com.wrpinheiro.deadcodedetection.model.AnalysisInformation.Stage.CREATING_DEAD_CODE_ISSUES;
-import static com.wrpinheiro.deadcodedetection.model.AnalysisInformation.Stage.CREATING_UDB_FILE;
-import static com.wrpinheiro.deadcodedetection.model.AnalysisInformation.Stage.DONE;
-import static java.util.Arrays.asList;
-
 /**
+ * Implementation of analysis services.
+ *
  * @author wrpinheiro
  */
 @Slf4j
@@ -54,7 +56,7 @@ public class AnalysisServiceImpl implements AnalysisService {
         AnalysisInformation analysisInformation = new AnalysisInformation();
         analysisInformation.setStartedAt(new Date());
 
-        repository.setStatus(AnalysisStatus.PROCESSING);
+        repository.setStatus(RepositoryStatus.PROCESSING);
         repository.setLastAnalysisInformation(analysisInformation);
 
         try {
@@ -68,14 +70,14 @@ public class AnalysisServiceImpl implements AnalysisService {
             analysisInformation.setDeadCodeIssues(deadCodeIssues);
             analysisInformation.setStage(DONE);
 
-            repository.setStatus(AnalysisStatus.COMPLETED);
+            repository.setStatus(RepositoryStatus.COMPLETED);
 
             log.info("Finished analysis for repository {}", repository.getUuid());
         } catch (Exception ex) {
             log.info("Error analyzing repository {}", repository.getUuid());
             log.debug("Error analyzing repository", ex);
             analysisInformation.setErrorMessage(ex.getMessage());
-            repository.setStatus(AnalysisStatus.FAILED);
+            repository.setStatus(RepositoryStatus.FAILED);
         }
     }
 
@@ -143,11 +145,13 @@ public class AnalysisServiceImpl implements AnalysisService {
     }
 
     /**
-     * The kind of dead code starts with an "@" and the information about the dead code (the file, lines, etc) and in a
-     * dot comma separated string
+     * <p>Parse a string representing the dead code issues.
      *
-     * @param repository
-     * @param deadCodeOutput
+     * The kind of dead code starts with an "@" and the information about the dead code (the file, lines, etc) and in a
+     * dot comma separated string.</p>
+     *
+     * @param repository the repository related to the dead code issues
+     * @param deadCodeOutput the string representing the dead code issues
      */
     private List<DeadCodeIssue> parseDeadCodeIssues(Repository repository, String deadCodeOutput) {
         log.info("Creating instances of dead code issues for repository {}", repository.getUuid());
@@ -165,7 +169,7 @@ public class AnalysisServiceImpl implements AnalysisService {
             line = str.trim();
             if (line.startsWith("@")) {
                 lastType = line.substring(1);
-            } else if (!line.equals("")){
+            } else if (!line.equals("")) {
                 String[] location = line.split(";");
 
                 deadCodeIssues.add(deadCodeLocationToInstance(lastType, location, filenamePattern));

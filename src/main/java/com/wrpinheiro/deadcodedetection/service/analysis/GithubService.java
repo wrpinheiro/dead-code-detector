@@ -5,6 +5,8 @@ import com.wrpinheiro.deadcodedetection.model.Repository;
 import java.nio.file.Path;
 
 /**
+ * Services for Github.
+ *
  * @author wrpinheiro
  */
 public interface GithubService {

@@ -1,6 +1,8 @@
 package com.wrpinheiro.deadcodedetection.model;
 
 /**
+ * Define the supported language for the analysis.
+ *
  * @author wrpinheiro
  */
 public enum Language {

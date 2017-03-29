@@ -1,5 +1,8 @@
 package com.wrpinheiro.deadcodedetection.service.analysis;
 
+import static com.wrpinheiro.deadcodedetection.model.AnalysisInformation.Stage.CLONING_REPO;
+import static java.util.Comparator.reverseOrder;
+
 import com.wrpinheiro.deadcodedetection.exceptions.AnalysisException;
 import com.wrpinheiro.deadcodedetection.model.GithubRepository;
 import com.wrpinheiro.deadcodedetection.model.Repository;
@@ -19,11 +22,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
 
-import static com.wrpinheiro.deadcodedetection.model.AnalysisInformation.Stage.CLONING_REPO;
-import static java.util.Comparator.reverseOrder;
-
 /**
- * Implementation of Github services
+ * Implementation of Github services.
  *
  * @author wrpinheiro
  */
@@ -35,6 +35,12 @@ public class GithubServiceImpl implements GithubService {
 
     private static final String REPOSITORIES_SUBDIR = "repos/";
 
+    /**
+     * Clone a Github repository.
+     *
+     * @param repository repository with information the repo that will be cloned
+     * @return the path to the local repository
+     */
     public Path cloneGitHubRepository(Repository repository) {
         GithubRepository githubRepository = repository.getGithubRepository();
 
@@ -51,7 +57,7 @@ public class GithubServiceImpl implements GithubService {
             removeDotGitDir(repositoryDir);
 
             return repositoryDir.toPath();
-        } catch(GitAPIException | JGitInternalException | IOException ex) {
+        } catch (GitAPIException | JGitInternalException | IOException ex) {
             log.error("Error downloading Github repository with message {}", ex);
             throw new AnalysisException(ex.getMessage(), ex);
         }
@@ -76,7 +82,7 @@ public class GithubServiceImpl implements GithubService {
 
     /**
      * Run a ls-remote to check if the branch or tag is available.
-     * @param githubRepository
+     * @param githubRepository the information about the repository to ls
      * @throws GitAPIException a general exception trying to access the repository
      * @throws AnalysisException when the branch chosen by user doesn't exist in the remote repository
      */

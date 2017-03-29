@@ -1,5 +1,8 @@
 package com.wrpinheiro.deadcodedetection.dao;
 
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.toList;
+
 import com.wrpinheiro.deadcodedetection.model.GithubRepository;
 import com.wrpinheiro.deadcodedetection.model.Repository;
 import org.springframework.stereotype.Component;
@@ -9,10 +12,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static java.util.Comparator.comparing;
-import static java.util.stream.Collectors.toList;
-
 /**
+ * DAO implementation for Repository entity.
+ *
  * @author wrpinheiro
  */
 @Component

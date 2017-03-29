@@ -1,14 +1,14 @@
 package com.wrpinheiro.deadcodedetection.controller.dto;
 
-import com.wrpinheiro.deadcodedetection.model.AnalysisStatus;
 import com.wrpinheiro.deadcodedetection.model.GithubRepository;
 import com.wrpinheiro.deadcodedetection.model.Repository;
+import com.wrpinheiro.deadcodedetection.model.RepositoryStatus;
 import lombok.Data;
 
 import java.util.Date;
 
 /**
- * A representation of repository without the list of dead code issues
+ * A representation of repository without the list of dead code issues.
  *
  * @author wrpinheiro
  */
@@ -16,11 +16,14 @@ import java.util.Date;
 public class SimpleRepositoryResponse {
     private String uuid;
     private GithubRepository githubRepository;
-    private AnalysisStatus status;
+    private RepositoryStatus status;
     private Date createdAt;
     private Date lastAnalysisRequested;
     private SimpleAnalysisInformationResponse lastAnalysisInformation;
 
+    /**
+     * Create the Simple Repository and fill its properties with values from the attribute repository.
+     */
     public SimpleRepositoryResponse(Repository repository) {
         this.uuid = repository.getUuid();
         this.githubRepository = repository.getGithubRepository();

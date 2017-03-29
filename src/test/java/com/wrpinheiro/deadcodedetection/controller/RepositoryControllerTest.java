@@ -1,5 +1,7 @@
 package com.wrpinheiro.deadcodedetection.controller;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.wrpinheiro.deadcodedetection.controller.dto.RepositoryRequest;
 import com.wrpinheiro.deadcodedetection.model.Language;
 import com.wrpinheiro.deadcodedetection.model.Repository;
@@ -14,10 +16,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.Map;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 /**
- * Test endpoint of Repository controller
+ * Test endpoint of Repository controller.
  *
  * @author wrpinheiro
  */
@@ -55,7 +55,8 @@ public class RepositoryControllerTest {
                 request, Repository.class);
 
         assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(entity.getBody().getGithubRepository().getUrl()).isEqualTo("https://github.com/wrpinheiro/jgraphlib.git");
+        assertThat(entity.getBody().getGithubRepository().getUrl())
+                .isEqualTo("https://github.com/wrpinheiro/jgraphlib.git");
         assertThat(entity.getBody().getGithubRepository().getLanguage()).isEqualTo(Language.JAVA);
         assertThat(entity.getBody().getGithubRepository().getBranch()).isEqualTo("master");
     }
@@ -74,8 +75,8 @@ public class RepositoryControllerTest {
         Repository repoCreated = entityCreated.getBody();
         String uuid = repoCreated.getUuid();
 
-        ResponseEntity<Repository> entityRetrieved = this.restTemplate.getForEntity("/api/repository/" + repoCreated.getUuid(),
-                Repository.class);
+        ResponseEntity<Repository> entityRetrieved = this.restTemplate.getForEntity("/api/repository/"
+                        + repoCreated.getUuid(), Repository.class);
 
         assertThat(entityRetrieved.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(entityRetrieved.getBody().getUuid()).isEqualTo(uuid);

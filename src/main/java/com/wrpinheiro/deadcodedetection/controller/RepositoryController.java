@@ -28,6 +28,8 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
 /**
+ * The repository controller.
+ *
  * @author wrpinheiro
  */
 @Component
@@ -49,29 +51,36 @@ public class RepositoryController {
                 .collect(Collectors.toList());
     }
 
-    @ApiOperation(value = "Create a repository.", response = Repository.class)
+    /**
+     * API operation to add a repository.
+     */
+    @ApiOperation(value = "Add a repository.", response = Repository.class)
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "The repository created"),
-            @ApiResponse(code = 409, message = "A repository with the same URL and BRANCH already exists. Please select different values " +
-                    "and POST again. If you want to check the dead code execute a POST to the endpoint " +
-                    "repository/{repository.uuid}/analyze"),
+            @ApiResponse(code = 200, message = "The repository added"),
+            @ApiResponse(code = 409, message = "A repository with the same URL and BRANCH already exists. Please "
+                    + "select different values and POST again. If you want to check the dead code execute a POST to "
+                    + "the endpoint repository/{repository.uuid}/analyze"),
             @ApiResponse(code = 412, message = "URL is a required field")
     })
     @POST
-    public Repository addRepository(@ApiParam(value = "Repository to be added and analyzed. The supported languages are:" +
-            "JAVA, ADA, CPP and FORTRAN") RepositoryRequest repositoryRequest) {
+    public Repository addRepository(@ApiParam(value = "Repository to be added and analyzed. The supported languages "
+            + "are: JAVA, ADA, CPP and FORTRAN") RepositoryRequest repositoryRequest) {
 
         try {
             if (repositoryRequest.getUrl() == null) {
                 throw new WebApplicationException(Response.Status.PRECONDITION_FAILED);
             }
 
-            return repositoryService.addRepository(repositoryRequest.getUrl(), repositoryRequest.getBranch(), repositoryRequest.getLanguage());
+            return repositoryService.addRepository(repositoryRequest.getUrl(), repositoryRequest.getBranch(),
+                    repositoryRequest.getLanguage());
         } catch (DuplicatedEntity ex) {
             throw new WebApplicationException(ex, Response.Status.CONFLICT);
         }
     }
 
+    /**
+     * API operation to get the information of a repository.
+     */
     @ApiOperation(value = "List the dead code issues found in the repository.", response = Repository.class)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The repository created", response = Repository.class),
@@ -89,6 +98,9 @@ public class RepositoryController {
         return repository;
     }
 
+    /**
+     * API operation to analyze one repository.
+     */
     @POST
     @ApiOperation(value = "Analyze a repository to find dead code.", response = SimpleRepositoryResponse.class)
     @ApiResponses(value = {
@@ -114,6 +126,9 @@ public class RepositoryController {
         }
     }
 
+    /**
+     * API operation to remove a repository.
+     */
     @DELETE
     @ApiOperation(value = "Remove a previously added repository and its analysis", response = Repository.class)
     @ApiResponses(value = {

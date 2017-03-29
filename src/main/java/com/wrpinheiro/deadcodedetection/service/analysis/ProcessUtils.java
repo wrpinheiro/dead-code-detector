@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 /**
- * A utility class to deal with process
+ * A utility class to deal with process.
  *
  * @author wrpinheiro
  */
@@ -31,13 +31,15 @@ public class ProcessUtils {
         private String stdout;
         private String stderr;
     }
+
     /**
      * Execute a shell command in an external process.
      *
-     * @return the output of the process
-     * @throws InterruptedException
-     * @throws TimeoutException
-     * @throws IOException
+     * @param processCommand the command to be executed
+     * @return the output information for the process
+     * @throws InterruptedException when the thread executing the process was interrupted
+     * @throws TimeoutException when the process times out
+     * @throws IOException when the command could not be found
      */
     public static ProcessOutput runProcess(ProcessCommand processCommand)
             throws InterruptedException, TimeoutException, IOException {

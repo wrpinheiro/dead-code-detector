@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Optional;
 
 /**
+ * DAO for repository model.
+ *
  * @author wrpinheiro
  */
 public interface RepositoryDAO {

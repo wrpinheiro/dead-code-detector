@@ -6,6 +6,8 @@ import com.wrpinheiro.deadcodedetection.model.Repository;
 import java.util.List;
 
 /**
+ * Services available for manipulating a repository.
+ *
  * @author wrpinheiro
  */
 public interface RepositoryService {
