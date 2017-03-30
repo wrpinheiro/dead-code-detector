@@ -45,6 +45,7 @@ public class PaginationService {
         } else {
             paginator.setData(Collections.emptyList());
         }
+        paginator.setTotalItems(items.size());
         paginator.setPage(page);
         paginator.setPageSize(pageSize);
         paginator.setTotalPages(totalPages);

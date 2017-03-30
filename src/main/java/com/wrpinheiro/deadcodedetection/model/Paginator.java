@@ -18,5 +18,6 @@ public class Paginator<T> {
     private Integer page;
     private Integer pageSize;
     private Integer totalPages;
+    private Integer totalItems;
     private List<T> data;
 }

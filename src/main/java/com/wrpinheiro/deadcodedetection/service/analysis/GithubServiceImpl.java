@@ -2,16 +2,17 @@ package com.wrpinheiro.deadcodedetection.service.analysis;
 
 import static com.wrpinheiro.deadcodedetection.model.AnalysisInformation.Stage.CLONING_REPO;
 import static java.lang.String.format;
+import static java.util.Arrays.asList;
 import static java.util.Comparator.reverseOrder;
 
 import com.wrpinheiro.deadcodedetection.exceptions.AnalysisException;
 import com.wrpinheiro.deadcodedetection.model.GithubRepository;
 import com.wrpinheiro.deadcodedetection.model.Repository;
+import com.wrpinheiro.deadcodedetection.service.analysis.ProcessUtils.ProcessOutput;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.JGitInternalException;
-import org.eclipse.jgit.lib.EmptyProgressMonitor;
 import org.eclipse.jgit.lib.Ref;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Implementation of Github services.
@@ -61,9 +63,6 @@ public class GithubServiceImpl implements GithubService {
 
             final File repositoryDir = cloneRepository(repository.getUuid(), githubRepository);
 
-            // the analysis doesn't required the .git directory.
-            removeDotGitDir(repositoryDir);
-
             return repositoryDir.toPath();
         } catch (GitAPIException | JGitInternalException | IOException ex) {
             log.error("Error downloading Github repository with message {}", ex);
@@ -73,48 +72,43 @@ public class GithubServiceImpl implements GithubService {
 
     private File cloneRepository(final String uuid, final GithubRepository githubRepository) throws GitAPIException,
             IOException {
-        final File repositoryDir = this.createRepositoryDirectory(uuid, githubRepository.getName());
+        try {
+            final File repositoryDir = this.createRepositoryDirectory(uuid, githubRepository.getName());
 
-        log.info("Repository {} will be cloned to directory {}", githubRepository.getUrl(),
-                repositoryDir.getAbsolutePath());
+            log.info("Repository {} will be cloned to directory {}", githubRepository.getUrl(),
+                    repositoryDir.getAbsolutePath());
 
-        Git.cloneRepository()
-                .setBare(false)
-                .setTimeout(GIT_TRANSPORT_TIMEOUT)
-                .setProgressMonitor(new EmptyProgressMonitor() {
-                    private int completedCounter;
+            log.info("Downloading repo tarball: " + "set -euo pipefail; wget -qO- --no-check-certificate " +
+            "https://github.com/"+githubRepository.getOwner() +"/"
+                    + githubRepository.getName() + "/archive/"+githubRepository.getBranch()
+                    +".tar.gz | tar -zxC "+ repositoryDir.getAbsolutePath() + " --strip-components 1");
 
-                    private void showMessage(String msg) {
-                        log.info(format("[clone] %s", msg));
-                    }
+            ProcessUtils.ProcessCommand command = ProcessUtils.ProcessCommand.builder().commands(asList(
+                    "/bin/sh",  "-c", "set -euo pipefail; wget -qO- --no-check-certificate " +
+                            "https://github.com/"+githubRepository.getOwner() +"/"
+                            + githubRepository.getName() + "/archive/"+githubRepository.getBranch()
+                            +".tar.gz | tar -zxC "+ repositoryDir.getAbsolutePath() + " --strip-components 1"))
+                    .timeout(120).build();
 
-                    @Override
-                    public void start(int totalTasks) {
-                        showMessage("Number of tasks: " + totalTasks);
-                    }
+            ProcessOutput output = ProcessUtils.runProcess(command);
 
-                    @Override
-                    public void beginTask(String title, int totalWork) {
-                        completedCounter = 0;
+            if (output.getExitCode() != 0) {
+                log.info("Error cloning repository: {}.", uuid);
 
-                        showMessage(format("Beginning task %s of %d", title, totalWork));
-                    }
+                final String logs = String.format("\n\nStdout: %s\n\nStderr: %s\n\n", output.getStdout(),
+                        output.getStderr());
+                log.error("Error creating UDB file\n{}", logs);
 
-                    @Override
-                    public void update(int completed) {
-                        if (completedCounter != completed) {
-                            completedCounter = completed;
-                            showMessage(format("Total complete: %d %%", completed));
-                        }
-                    }
-                })
-                .setURI(githubRepository.getUrl())
-                .setDirectory(repositoryDir)
-                .setCloneSubmodules(false)
-                .setBranch(githubRepository.getBranch())
-                .call();
+                throw new AnalysisException("Error cloning repository: " + githubRepository.getUrl());
+            }
 
-        return repositoryDir;
+            log.info("Finished cloning repository: {}", githubRepository.getUrl());
+
+            return repositoryDir;
+        } catch (InterruptedException | TimeoutException ex) {
+            log.error("Error cloning Github repository with message {}", ex);
+            throw new AnalysisException(ex.getMessage(), ex);
+        }
     }
 
     /**
@@ -134,10 +128,10 @@ public class GithubServiceImpl implements GithubService {
         }
     }
 
-    private File createRepositoryDirectory(final String uuid, final String name) throws IOException {
+    private File createRepositoryDirectory(final String uuid, final String repositoryName) throws IOException {
         final String repositoriesDirectory = dataDir + REPOSITORIES_SUBDIR;
 
-        final Path path = Paths.get(repositoriesDirectory, uuid, name);
+        final Path path = Paths.get(repositoriesDirectory, uuid, repositoryName);
 
         if (Files.exists(path)) {
             deleteSubDirectoryStructure(path);
@@ -146,11 +140,6 @@ public class GithubServiceImpl implements GithubService {
         Files.createDirectories(path);
 
         return path.toFile();
-    }
-
-    private void removeDotGitDir(final File repositoryDir) throws IOException {
-        final Path gitDir = Paths.get(repositoryDir.getAbsolutePath(), ".git");
-        deleteSubDirectoryStructure(gitDir);
     }
 
     private void deleteSubDirectoryStructure(final Path path) throws IOException {

@@ -20,6 +20,9 @@ public class ProcessUtils {
     @Data
     @Builder
     public static class ProcessCommand {
+        /**
+         * time in SECONDS.
+         */
         private long timeout;
         private List<String> commands;
     }
