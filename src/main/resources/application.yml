@@ -23,3 +23,4 @@ app:
     kindBlacklist: ${KIND_BLACKLIST:public;protected}
     kindWhitelist: ${KIND_WHITELIST:variable;parameter;method;function;procedure}
     refBlackList: ${REF_BLACKLIST:serialVersionuid;lambda_expr_}
+    gitTransportTimeout: ${GIT_TRANSPORT_TIMEOUT:60}

@@ -1,6 +1,7 @@
 package com.wrpinheiro.deadcodedetection.service.analysis;
 
 import static com.wrpinheiro.deadcodedetection.model.AnalysisInformation.Stage.CLONING_REPO;
+import static java.lang.String.format;
 import static java.util.Comparator.reverseOrder;
 
 import com.wrpinheiro.deadcodedetection.exceptions.AnalysisException;
@@ -10,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.JGitInternalException;
+import org.eclipse.jgit.lib.EmptyProgressMonitor;
 import org.eclipse.jgit.lib.Ref;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -30,6 +32,12 @@ import java.util.Collection;
 @Slf4j
 @Service
 public class GithubServiceImpl implements GithubService {
+    /**
+     * Max time without activity before a Git command throws a timeout
+     */
+    @Value("${app.analyzer.gitTransportTimeout}")
+    private int GIT_TRANSPORT_TIMEOUT;
+
     @Value("${app.analyzer.dataDir}")
     private String dataDir;
 
@@ -72,6 +80,34 @@ public class GithubServiceImpl implements GithubService {
 
         Git.cloneRepository()
                 .setBare(false)
+                .setTimeout(GIT_TRANSPORT_TIMEOUT)
+                .setProgressMonitor(new EmptyProgressMonitor() {
+                    private int completedCounter;
+
+                    private void showMessage(String msg) {
+                        log.info(format("[clone] %s", msg));
+                    }
+
+                    @Override
+                    public void start(int totalTasks) {
+                        showMessage("Number of tasks: " + totalTasks);
+                    }
+
+                    @Override
+                    public void beginTask(String title, int totalWork) {
+                        completedCounter = 0;
+
+                        showMessage(format("Beginning task %s of %d", title, totalWork));
+                    }
+
+                    @Override
+                    public void update(int completed) {
+                        if (completedCounter != completed) {
+                            completedCounter = completed;
+                            showMessage(format("Total complete: %d %%", completed));
+                        }
+                    }
+                })
                 .setURI(githubRepository.getUrl())
                 .setDirectory(repositoryDir)
                 .setCloneSubmodules(false)
@@ -93,7 +129,7 @@ public class GithubServiceImpl implements GithubService {
                 .setRemote(githubRepository.getUrl()).call();
 
         if (!refs.stream().anyMatch(ref -> ref.getName().endsWith(githubRepository.getBranch()))) {
-            throw new AnalysisException(String.format("Could not find branch %s in repository %s",
+            throw new AnalysisException(format("Could not find branch %s in repository %s",
                     githubRepository.getBranch(), githubRepository.getUrl()));
         }
     }
