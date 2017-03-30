@@ -35,10 +35,10 @@ import java.util.concurrent.TimeoutException;
 @Service
 public class GithubServiceImpl implements GithubService {
     /**
-     * Max time without activity before a Git command throws a timeout
+     * Max time without activity before a Git command throws a timeout.
      */
     @Value("${app.analyzer.gitTransportTimeout}")
-    private int GIT_TRANSPORT_TIMEOUT;
+    private int gitTransportTimeout;
 
     @Value("${app.analyzer.dataDir}")
     private String dataDir;
@@ -78,24 +78,24 @@ public class GithubServiceImpl implements GithubService {
             log.info("Repository {} will be cloned to directory {}", githubRepository.getUrl(),
                     repositoryDir.getAbsolutePath());
 
-            log.info("Downloading repo tarball: " + "set -euo pipefail; wget -qO- --no-check-certificate " +
-            "https://github.com/"+githubRepository.getOwner() +"/"
-                    + githubRepository.getName() + "/archive/"+githubRepository.getBranch()
-                    +".tar.gz | tar -zxC "+ repositoryDir.getAbsolutePath() + " --strip-components 1");
+            log.info("Downloading repo tarball: " + "set -euo pipefail; wget -qO- --no-check-certificate "
+                    + "https://github.com/" + githubRepository.getOwner() + "/"
+                    + githubRepository.getName() + "/archive/" + githubRepository.getBranch()
+                    + ".tar.gz | tar -zxC " + repositoryDir.getAbsolutePath() + " --strip-components 1");
 
-            ProcessUtils.ProcessCommand command = ProcessUtils.ProcessCommand.builder().commands(asList(
-                    "/bin/sh",  "-c", "set -euo pipefail; wget -qO- --no-check-certificate " +
-                            "https://github.com/"+githubRepository.getOwner() +"/"
-                            + githubRepository.getName() + "/archive/"+githubRepository.getBranch()
-                            +".tar.gz | tar -zxC "+ repositoryDir.getAbsolutePath() + " --strip-components 1"))
+            final ProcessUtils.ProcessCommand command = ProcessUtils.ProcessCommand.builder().commands(asList(
+                    "/bin/bash",  "-c", "set -euo pipefail; wget -qO- --no-check-certificate "
+                            + "https://github.com/" + githubRepository.getOwner()
+                            + "/" + githubRepository.getName() + "/archive/" + githubRepository.getBranch()
+                            + ".tar.gz | tar -zxC " + repositoryDir.getAbsolutePath() + " --strip-components 1"))
                     .timeout(120).build();
 
-            ProcessOutput output = ProcessUtils.runProcess(command);
+            final ProcessOutput output = ProcessUtils.runProcess(command);
 
             if (output.getExitCode() != 0) {
                 log.info("Error cloning repository: {}.", uuid);
 
-                final String logs = String.format("\n\nStdout: %s\n\nStderr: %s\n\n", output.getStdout(),
+                final String logs = format("\n\nStdout: %s\n\nStderr: %s\n\n", output.getStdout(),
                         output.getStderr());
                 log.error("Error creating UDB file\n{}", logs);
 
