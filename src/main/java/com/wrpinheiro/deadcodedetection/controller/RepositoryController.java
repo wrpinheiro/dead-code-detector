@@ -87,7 +87,7 @@ public class RepositoryController {
             + "are: JAVA, ADA, CPP and FORTRAN") final RepositoryRequest repositoryRequest) {
 
         try {
-            if (repositoryRequest.getUrl() == null) {
+            if (repositoryRequest == null || repositoryRequest.getUrl() == null) {
                 throw new WebApplicationException(Response.Status.PRECONDITION_FAILED);
             }
 
@@ -108,7 +108,7 @@ public class RepositoryController {
             @ApiResponse(code = 404, message = "Repository with the requested uuid could not found"),})
     @GET
     @Path("/{repositoryUUID}")
-    public SimpleRepositoryResponse getRepositoryIssues(@ApiParam(name = "repositoryUUID",
+    public SimpleRepositoryResponse getRepositoryByUUID(@ApiParam(name = "repositoryUUID",
             value = "the repository uuid to search")  @PathParam("repositoryUUID") final String repositoryUUID) {
         final Repository repository = repositoryService.findByUUID(repositoryUUID);
 
