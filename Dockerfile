@@ -31,4 +31,4 @@ RUN mkdir /var/log/deadcodedetection
 ENV JAVA_XMX 1024M
 
 EXPOSE 80 8080
-ENTRYPOINT exec java -Xmx$JAVA_XMX -jar /app/dead-code-detection-service.jar
+ENTRYPOINT exec java -Xmx$JAVA_XMX -jar -Djava.security.egd=file:/dev/urandom /app/dead-code-detection-service.jar
