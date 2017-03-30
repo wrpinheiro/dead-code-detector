@@ -14,20 +14,32 @@ import java.util.List;
  */
 @Service
 public class PaginationService {
-    public <T> Paginator<T> getPage(List<T> items, Integer page, Integer pageSize) throws PaginationException {
+    /**
+     * Return the nth sublist of items containing at most pageSize items. The nth sublist is defined by page.
+     *
+     * @param items the items to be paginated
+     * @param page the nth sublist
+     * @param pageSize the page size
+     * @param <T> the type of the items
+     * @return a sublist of item
+     * @throws PaginationException when page or pageSize have invalid values
+     */
+    public <T> Paginator<T> getPage(final List<T> items, final Integer page, final Integer pageSize)
+            throws PaginationException {
 
         if (page < 1 || pageSize < 1) {
             throw new PaginationException("page and pageSize must be equal or greater than 1");
         }
 
-        int totalPages = (items.size() / pageSize);
-        if (items.size() % pageSize > 0)
+        int totalPages = items.size() / pageSize;
+        if (items.size() % pageSize > 0) {
             totalPages++;
+        }
 
-        int initialIdxPage = Math.max(0, (page - 1) * pageSize);
-        int finalExclusiveIdxPage = initialIdxPage + Math.min(pageSize, items.size());
+        final int initialIdxPage = Math.max(0, (page - 1) * pageSize);
+        final int finalExclusiveIdxPage = initialIdxPage + Math.min(pageSize, items.size());
 
-        Paginator paginator = new Paginator();
+        final Paginator<T> paginator = new Paginator();
         if (initialIdxPage < items.size()) {
             paginator.setData(items.subList(initialIdxPage, finalExclusiveIdxPage));
         } else {

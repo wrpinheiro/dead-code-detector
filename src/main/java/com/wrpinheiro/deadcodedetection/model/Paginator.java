@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 
 /**
+ * Representation of a page of data.
+ *
  * @author wrpinheiro
  */
 @Data

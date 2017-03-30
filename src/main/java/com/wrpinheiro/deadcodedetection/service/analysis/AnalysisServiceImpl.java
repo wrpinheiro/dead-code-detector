@@ -217,8 +217,7 @@ public class AnalysisServiceImpl implements AnalysisService {
     }
 
     private List<DeadCodeIssue> filterValidIssuesAndSort(final List<DeadCodeIssue> deadCodeIssues) {
-        Comparator<DeadCodeIssue> deadCodeIssueComparator = Comparator
-                .comparing(DeadCodeIssue::getFilename)
+        final Comparator<DeadCodeIssue> deadCodeIssueComparator = comparing(DeadCodeIssue::getFilename)
                 .thenComparing(DeadCodeIssue::getKind);
 
         return deadCodeIssues.stream()
