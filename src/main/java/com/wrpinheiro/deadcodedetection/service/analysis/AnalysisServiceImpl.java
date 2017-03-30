@@ -24,6 +24,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -216,9 +217,13 @@ public class AnalysisServiceImpl implements AnalysisService {
     }
 
     private List<DeadCodeIssue> filterValidIssuesAndSort(final List<DeadCodeIssue> deadCodeIssues) {
+        Comparator<DeadCodeIssue> deadCodeIssueComparator = Comparator
+                .comparing(DeadCodeIssue::getFilename)
+                .thenComparing(DeadCodeIssue::getKind);
+
         return deadCodeIssues.stream()
                 .filter(this::isValidKindAndRef)
-                .sorted(comparing(DeadCodeIssue::getFilename)).collect(toList());
+                .sorted(deadCodeIssueComparator).collect(toList());
     }
 
     private DeadCodeIssue deadCodeLocationToInstance(final String kind, final String[] location,

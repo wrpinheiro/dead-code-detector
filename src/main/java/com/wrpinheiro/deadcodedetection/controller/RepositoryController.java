@@ -48,7 +48,7 @@ public class RepositoryController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Zero or more repositories found",  responseContainer = "List",
                     response = Repository.class),
-            @ApiResponse(code = 412, message = "Parameters page and pageSize must be equal or greater than 1")
+            @ApiResponse(code = 400 , message = "Parameters page and pageSize must be equal or greater than 1")
     })
     @GET
     public Paginator<SimpleRepositoryResponse> getRepositories(
@@ -64,7 +64,7 @@ public class RepositoryController {
 
             return paginationService.getPage(response, page, pageSize);
         } catch (PaginationException ex) {
-            throw new WebApplicationException(ex, Response.Status.PRECONDITION_FAILED);
+            throw new WebApplicationException(ex, Response.Status.BAD_REQUEST);
         }
     }
 
@@ -119,28 +119,45 @@ public class RepositoryController {
     /**
      * API operation to get the issues of a repository.
      */
-    @ApiOperation(value = "List the issues (dead code) found in the repository.", response = DeadCodeIssue.class,
-        responseContainer = "List")
+    @ApiOperation(value = "Return a paginated list of issues (dead code) found in the repository, sorted by filename"
+            + " and kind. The result can also be filtered by kind. Some possible values for the kind field are:"
+            +  "parameter, method or variables (case is ignored and the search is of type issue.ref contains kind",
+            response = DeadCodeIssue.class, responseContainer = "List")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The issues of a repository", response = DeadCodeIssue.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "could not find repository with the requested uuid"),
+            @ApiResponse(code = 400, message = "Parameters page and pageSize must be equal or greater than 1"),
             @ApiResponse(code = 412, message = "Can't return issues of a repository with status different from COMPLETED")})
     @GET
     @Path("/{repositoryUUID}/issues")
-    public List<DeadCodeIssue> getDeadCodeIssues(@ApiParam(name = "repositoryUUID", value = "the repository uuid to search")
-                                          @PathParam("repositoryUUID") final String repositoryUUID) {
-        final Repository repository = repositoryService.findByUUID(repositoryUUID);
+    public Paginator<DeadCodeIssue> getDeadCodeIssues(
+            @ApiParam(name = "repositoryUUID", value = "the repository uuid to search")
+                                          @PathParam("repositoryUUID") final String repositoryUUID,
+            @ApiParam(value="Filter issues by kind (all issues with a kind that CONTAINS this parameter")
+                @QueryParam("kind") String kind,
+            @ApiParam(value="the page to be shown") @DefaultValue("1") @QueryParam("page") Integer page,
+            @ApiParam(value="the max number of elements per page") @DefaultValue("10") @QueryParam("pageSize")
+                    Integer pageSize) {
 
-        if (repository == null) {
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        try {
+            final Repository repository = repositoryService.findByUUID(repositoryUUID);
+
+            if (repository == null) {
+                throw new WebApplicationException(Response.Status.NOT_FOUND);
+            }
+
+            if (repository.getLastAnalysisInformation() == null ||
+                    repository.getStatus() != RepositoryStatus.COMPLETED) {
+                throw new WebApplicationException(Response.Status.PRECONDITION_FAILED);
+            }
+
+            List<DeadCodeIssue> deadCodeIssues = repositoryService.filterDeadCodeIssues(repository
+                    .getLastAnalysisInformation().getDeadCodeIssues(), kind);
+
+            return paginationService.getPage(deadCodeIssues, page, pageSize);
+        } catch (PaginationException ex) {
+            throw new WebApplicationException(ex, Response.Status.BAD_REQUEST);
         }
-
-        if (repository.getLastAnalysisInformation() == null ||
-                repository.getStatus() != RepositoryStatus.COMPLETED) {
-            throw new WebApplicationException(Response.Status.PRECONDITION_FAILED);
-        }
-
-        return repository.getLastAnalysisInformation().getDeadCodeIssues();
     }
 
     /**

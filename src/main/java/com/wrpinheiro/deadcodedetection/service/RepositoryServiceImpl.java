@@ -1,22 +1,28 @@
 package com.wrpinheiro.deadcodedetection.service;
 
+import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
+import static org.apache.commons.lang3.StringUtils.containsIgnoreCase;
 import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 import com.wrpinheiro.deadcodedetection.dao.RepositoryDAO;
 import com.wrpinheiro.deadcodedetection.exceptions.DuplicatedEntity;
 import com.wrpinheiro.deadcodedetection.exceptions.InvalidStateException;
+import com.wrpinheiro.deadcodedetection.model.DeadCodeIssue;
 import com.wrpinheiro.deadcodedetection.model.GithubRepository;
 import com.wrpinheiro.deadcodedetection.model.Language;
 import com.wrpinheiro.deadcodedetection.model.Repository;
 import com.wrpinheiro.deadcodedetection.model.RepositoryStatus;
 import com.wrpinheiro.deadcodedetection.service.analysis.AnalysisService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * Implements repository services.
@@ -114,5 +120,18 @@ public class RepositoryServiceImpl implements RepositoryService {
     @Override
     public Repository findByUUID(final String repositoryUUID) {
         return repositoryDAO.findByUUID(repositoryUUID);
+    }
+
+    @Override
+    public List<DeadCodeIssue> filterDeadCodeIssues(final List<DeadCodeIssue> deadCodeIssues, final String kind) {
+        if (isEmpty(kind)) {
+            return deadCodeIssues;
+        }
+
+        final String trimmedKind = kind.trim();
+
+        return deadCodeIssues.stream().filter(deadCodeIssue ->
+                containsIgnoreCase(deadCodeIssue.getKind(), trimmedKind))
+                .collect(toList());
     }
 }
