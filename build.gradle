@@ -22,7 +22,7 @@ repositories {
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
-project.version = '0.0.12'
+project.version = '0.0.13'
 
 jar {
     baseName = 'dead-code-detection-service'
@@ -42,6 +42,13 @@ pmd {
 	toolVersion = '5.5.5'
 	ignoreFailures = true
 	ruleSetFiles = files('config/pmd/pmd.rules.xml')
+}
+
+test {
+    reports {
+        junitXml.enabled = false
+        html.enabled = true
+    }
 }
 
 dependencies {

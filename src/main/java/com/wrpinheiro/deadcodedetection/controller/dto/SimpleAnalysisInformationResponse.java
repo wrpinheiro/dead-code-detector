@@ -18,6 +18,9 @@ public class SimpleAnalysisInformationResponse {
     private Stage stage;
     private String errorMessage;
 
+    public SimpleAnalysisInformationResponse() {
+    }
+
     /**
      * Create a simplified representation for the analysis information.
      * @param analysisInformation the complete analysis information model.

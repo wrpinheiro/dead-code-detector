@@ -21,6 +21,9 @@ public class SimpleRepositoryResponse {
     private Date lastAnalysisRequested;
     private SimpleAnalysisInformationResponse lastAnalysisInformation;
 
+    public SimpleRepositoryResponse() {
+    }
+
     /**
      * Create the Simple Repository and fill its properties with values from the attribute repository.
      */
