@@ -1,14 +1,17 @@
-package com.wrpinheiro.deadcodedetection.service.analysis;
+package com.wrpinheiro.deadcodedetection.service.analysis.steps;
 
 import static com.wrpinheiro.deadcodedetection.model.AnalysisInformation.Stage.CLONING_REPO;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Comparator.reverseOrder;
+import static java.util.stream.Collectors.joining;
 
 import com.wrpinheiro.deadcodedetection.exceptions.AnalysisException;
 import com.wrpinheiro.deadcodedetection.model.GithubRepository;
 import com.wrpinheiro.deadcodedetection.model.Repository;
-import com.wrpinheiro.deadcodedetection.service.analysis.ProcessUtils.ProcessOutput;
+import com.wrpinheiro.deadcodedetection.service.analysis.util.ProcessUtils;
+import com.wrpinheiro.deadcodedetection.service.analysis.util.ProcessUtils.ProcessCommand;
+import com.wrpinheiro.deadcodedetection.service.analysis.util.ProcessUtils.ProcessOutput;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -24,6 +27,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.TimeoutException;
 
 /**
@@ -74,20 +78,16 @@ public class GithubServiceImpl implements GithubService {
             IOException {
         try {
             final File repositoryDir = this.createRepositoryDirectory(uuid, githubRepository.getName());
-
-            log.info("Repository {} will be cloned to directory {}", githubRepository.getUrl(),
+            log.info("Repository {} will be cloned to  {}", githubRepository.getUrl(),
                     repositoryDir.getAbsolutePath());
 
-            log.info("Downloading repo tarball: " + "set -euo pipefail; wget -qO- --no-check-certificate "
-                    + "https://github.com/" + githubRepository.getOwner() + "/"
-                    + githubRepository.getName() + "/archive/" + githubRepository.getBranch()
-                    + ".tar.gz | tar -zxC " + repositoryDir.getAbsolutePath() + " --strip-components 1");
+            final List<String> downloadGithubTarballBashCommand = getDownloadGithubTarballBashCommand(
+                    githubRepository, repositoryDir);
 
-            final ProcessUtils.ProcessCommand command = ProcessUtils.ProcessCommand.builder().commands(asList(
-                    "/bin/bash",  "-c", "set -euo pipefail; wget -qO- --no-check-certificate "
-                            + "https://github.com/" + githubRepository.getOwner()
-                            + "/" + githubRepository.getName() + "/archive/" + githubRepository.getBranch()
-                            + ".tar.gz | tar -zxC " + repositoryDir.getAbsolutePath() + " --strip-components 1"))
+            log.debug("Downloading repo tarball: " + downloadGithubTarballBashCommand.stream()
+                    .collect(joining(" ")));
+
+            final ProcessCommand command = ProcessCommand.builder().commands(downloadGithubTarballBashCommand)
                     .timeout(120).build();
 
             final ProcessOutput output = ProcessUtils.runProcess(command);
@@ -109,6 +109,31 @@ public class GithubServiceImpl implements GithubService {
             log.error("Error cloning Github repository with message {}", ex);
             throw new AnalysisException(ex.getMessage(), ex);
         }
+    }
+
+    /**
+     * Create a bash command to wget the tarball of the Github repository. The command is tar piped to
+     * extract the archive in the directory specified by repositoryDir. The first level directory is
+     * stripped from the tar file because Github adds it and we don't need. The command is executed with
+     * a "bash -c"
+     *
+     * @param githubRepository information about the Github repository
+     * @param repositoryDir the directory to extract the content of the tar file
+     * @return a list of strings representing the command
+     */
+    private List<String> getDownloadGithubTarballBashCommand(final GithubRepository githubRepository,
+                                                             final File repositoryDir) {
+        final StringBuilder wgetCommand = new StringBuilder(128);
+
+        wgetCommand
+                .append("set -euo pipefail; ")
+                .append("wget -qO- --no-check-certificate https://github.com/")
+                .append(githubRepository.getOwner()).append('/').append(githubRepository.getName())
+                .append("/archive/").append(githubRepository.getBranch())
+                .append(".tar.gz").append(" | ")
+                    .append("tar -zxC ").append(repositoryDir.getAbsolutePath())
+                    .append(" --strip-components 1");
+        return asList("/bin/bash",  "-c", wgetCommand.toString());
     }
 
     /**

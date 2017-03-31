@@ -4,6 +4,10 @@
     <property name="LOGS_PATH" value="/var/log/deadcodedetection" />
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
         <encoder>
             <pattern>%-4relative [%thread] %-5level %logger{35} - %msg %n</pattern>
         </encoder>
@@ -34,12 +38,11 @@
         <appender-ref ref="FILE" />
     </appender>
 
-     Loggers
-    <logger name="com.wrpinheiro.deadcodedetection">
+    <logger level="DEBUG" name="com.wrpinheiro.deadcodedetection">
         <appender-ref ref="ASYNC-FILE" />
     </logger>
 
-    <root level="info">
+    <root level="INFO">
         <appender-ref ref="ASYNC-STDOUT" />
     </root>
 </configuration>

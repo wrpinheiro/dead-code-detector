@@ -1,5 +1,9 @@
 package com.wrpinheiro.deadcodedetection.model;
 
+import static com.wrpinheiro.deadcodedetection.model.RepositoryStatus.COMPLETED;
+import static com.wrpinheiro.deadcodedetection.model.RepositoryStatus.FAILED;
+import static com.wrpinheiro.deadcodedetection.model.RepositoryStatus.PROCESSING;
+
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.Builder;
@@ -37,14 +41,28 @@ public class Repository {
         this.status = status;
 
         if (this.getLastAnalysisInformation() != null) {
-            if (!status.equals(RepositoryStatus.FAILED)) {
+            if (!status.equals(FAILED)) {
                 this.getLastAnalysisInformation().setErrorMessage(null);
             }
 
-            if (!status.equals(RepositoryStatus.COMPLETED)) {
+            if (!status.equals(COMPLETED)) {
                 this.getLastAnalysisInformation().setDeadCodeIssues(null);
             }
         }
+    }
+
+    /**
+     * Notified this repository that it's being analyzed.
+     *
+     * @param analysisInformation the analysis information for this repository
+     */
+    public void startingAnalysis(final AnalysisInformation analysisInformation) {
+        setStatus(PROCESSING);
+        setLastAnalysisInformation(analysisInformation);
+    }
+
+    public void finishAnalysis() {
+        setStatus(COMPLETED);
     }
 
     /**

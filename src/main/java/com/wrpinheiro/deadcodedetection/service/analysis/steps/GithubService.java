@@ -1,4 +1,4 @@
-package com.wrpinheiro.deadcodedetection.service.analysis;
+package com.wrpinheiro.deadcodedetection.service.analysis.steps;
 
 import com.wrpinheiro.deadcodedetection.model.Repository;
 

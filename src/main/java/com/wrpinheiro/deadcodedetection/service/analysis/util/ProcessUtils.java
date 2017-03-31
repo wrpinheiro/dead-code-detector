@@ -1,7 +1,8 @@
-package com.wrpinheiro.deadcodedetection.service.analysis;
+package com.wrpinheiro.deadcodedetection.service.analysis.util;
 
 import lombok.Builder;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.zeroturnaround.exec.ProcessExecutor;
 import org.zeroturnaround.exec.ProcessResult;
 
@@ -10,12 +11,14 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
 
 /**
  * A utility class to deal with process.
  *
  * @author wrpinheiro
  */
+@Slf4j
 public class ProcessUtils {
     @Data
     @Builder
@@ -47,6 +50,8 @@ public class ProcessUtils {
     public static ProcessOutput runProcess(final ProcessCommand processCommand)
             throws InterruptedException, TimeoutException, IOException {
         final ByteArrayOutputStream boa = new ByteArrayOutputStream();
+
+        log.debug(processCommand.getCommands().stream().collect(Collectors.joining(" ")));
 
         final ProcessResult processResult = new ProcessExecutor().command(processCommand.getCommands())
                 .timeout(processCommand.getTimeout(), TimeUnit.SECONDS)
