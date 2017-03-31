@@ -28,7 +28,7 @@ import java.util.Map;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class RepositoryControllerTest {
+public class RepositoryControllerTestIT {
     private static final long INTERVAL_BETWEEN_FIND_CALLS = 3000;
 
     private static final int MAX_CALLS_ATEMPTS = 10;

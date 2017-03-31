@@ -32,6 +32,26 @@ public class DeadCodeIssueFilterServiceImpl implements DeadCodeIssueFilterServic
     private List<String> refBlackList;
 
     /**
+     * Default constructor added to simplify unit tests.
+     */
+    public DeadCodeIssueFilterServiceImpl() {
+    }
+
+    /**
+     * Constructor used to allow easier unit tests.
+     *
+     * @param kindBlacklist the kind blacklist
+     * @param kindWhitelist the kind whitelist
+     * @param refBlackList the ref blacklist
+     */
+    public DeadCodeIssueFilterServiceImpl(final List<String> kindBlacklist, final List<String> kindWhitelist,
+                                          final List<String> refBlackList) {
+        this.kindBlacklist = kindBlacklist;
+        this.kindWhitelist = kindWhitelist;
+        this.refBlackList = refBlackList;
+    }
+
+    /**
      * @see DeadCodeIssueFilterService#filterValidIssuesAndSort(String, AnalysisInformation, List).
      */
     public List<DeadCodeIssue> filterValidIssuesAndSort(final String uuid,
