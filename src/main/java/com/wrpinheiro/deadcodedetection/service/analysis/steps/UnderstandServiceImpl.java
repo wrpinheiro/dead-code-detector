@@ -30,6 +30,9 @@ public class UnderstandServiceImpl implements UnderstandService {
     @Value("${app.analyzer.scitoolsHome}")
     private String scitoolsHome;
 
+    @Value("${app.analyzer.undTimeout}")
+    private Integer undTimeout;
+
     /**
      * @see UnderstandService#createUDBFile(String, GithubRepository, AnalysisInformation, Path).
      */
@@ -44,8 +47,10 @@ public class UnderstandServiceImpl implements UnderstandService {
         try {
             final List<String> undShellCommand = getUndCommand(githubRepository, repositoryDir, UDB_FILE);
 
+            log.debug("UND shell command timeout: {}", undTimeout);
+
             final ProcessUtils.ProcessCommand undCommand = ProcessUtils.ProcessCommand.builder().commands(
-                    undShellCommand).timeout(60).build();
+                    undShellCommand).timeout(undTimeout).build();
             final ProcessUtils.ProcessOutput output = ProcessUtils.runProcess(undCommand);
 
             if (output.getExitCode() != 0) {

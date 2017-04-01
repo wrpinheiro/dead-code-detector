@@ -41,8 +41,8 @@ public class GithubServiceImpl implements GithubService {
     /**
      * Max time without activity before a Git command throws a timeout.
      */
-    @Value("${app.analyzer.gitTransportTimeout}")
-    private int gitTransportTimeout;
+    @Value("${app.analyzer.gitRepositoryDownloadTimeout}")
+    private int gitRepositoryDownloadTimeout;
 
     @Value("${app.analyzer.dataDir}")
     private String dataDir;
@@ -86,9 +86,10 @@ public class GithubServiceImpl implements GithubService {
 
             log.debug("Downloading repo tarball: " + downloadGithubTarballBashCommand.stream()
                     .collect(joining(" ")));
+            log.debug("Git repository download timeout is {}", gitRepositoryDownloadTimeout);
 
             final ProcessCommand command = ProcessCommand.builder().commands(downloadGithubTarballBashCommand)
-                    .timeout(120).build();
+                    .timeout(gitRepositoryDownloadTimeout).build();
 
             final ProcessOutput output = ProcessUtils.runProcess(command);
 
