@@ -37,7 +37,7 @@ public class PaginationService {
         }
 
         final int initialIdxPage = Math.max(0, (page - 1) * pageSize);
-        final int finalExclusiveIdxPage = initialIdxPage + Math.min(pageSize, items.size());
+        final int finalExclusiveIdxPage = Math.min(initialIdxPage + pageSize, items.size());
 
         final Paginator<T> paginator = new Paginator<>();
         if (initialIdxPage < items.size()) {
