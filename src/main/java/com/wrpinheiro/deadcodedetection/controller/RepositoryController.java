@@ -22,6 +22,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 
@@ -77,6 +78,7 @@ public class RepositoryController {
     @ApiOperation(value = "Add a repository.", response = Repository.class)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The repository added"),
+            @ApiResponse(code = 400, message = "Validation exception. Check response body."),
             @ApiResponse(code = 409, message = "A repository with the same URL and BRANCH already exists. Please "
                     + "select different values and POST again. If you want to check the dead code execute a POST to "
                     + "the endpoint repository/{repository.uuid}/analyze"),
@@ -84,7 +86,7 @@ public class RepositoryController {
     })
     @POST
     public Repository addRepository(@ApiParam(value = "Repository to be added and analyzed. The supported languages "
-            + "are: JAVA, ADA, CPP and FORTRAN") final RepositoryRequest repositoryRequest) {
+            + "are: JAVA, ADA, CPP and FORTRAN") @Valid final RepositoryRequest repositoryRequest) {
 
         try {
             if (repositoryRequest == null || repositoryRequest.getUrl() == null) {

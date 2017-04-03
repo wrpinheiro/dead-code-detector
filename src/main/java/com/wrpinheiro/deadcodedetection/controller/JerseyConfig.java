@@ -1,9 +1,11 @@
 package com.wrpinheiro.deadcodedetection.controller;
 
+import com.wrpinheiro.deadcodedetection.validation.ConstraintViolationExceptionMapper;
 import io.swagger.jaxrs.config.BeanConfig;
 import io.swagger.jaxrs.listing.ApiListingResource;
 import io.swagger.jaxrs.listing.SwaggerSerializers;
 import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.server.ServerProperties;
 import org.springframework.stereotype.Component;
 
 import javax.ws.rs.ApplicationPath;
@@ -21,7 +23,10 @@ public class JerseyConfig extends ResourceConfig {
      * Registers the controller with Jerset and configure Swagger.
      */
     public JerseyConfig() {
+        property(ServerProperties.BV_SEND_ERROR_IN_RESPONSE, true);
+
         register(RepositoryController.class);
+        register(ConstraintViolationExceptionMapper.class);
 
         this.configureSwagger();
     }

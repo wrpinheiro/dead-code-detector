@@ -9,7 +9,6 @@ import com.wrpinheiro.deadcodedetection.model.DeadCodeIssue;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -18,6 +17,10 @@ import java.util.List;
  * @author wrpinheiro
  */
 public class DeadCodeIssueFilterServiceImplTest {
+
+    /**
+     * Must ignore ref when it is empty.
+     */
     @Ignore("know bug: when refBlackList is empty it will reject every issue!! "
             + "The same must happen to the order black/whitelists")
     public void mustIgnoreEmptyBlacklistRef() {
@@ -29,12 +32,15 @@ public class DeadCodeIssueFilterServiceImplTest {
                 .ref("abc").filename("File1.java").build();
 
         final List<DeadCodeIssue> filteredIssues =  deadCodeIssueFilterService.filterValidIssuesAndSort("an id",
-                new AnalysisInformation(), Arrays.asList(privateMethod));
+                new AnalysisInformation(), asList(privateMethod));
 
         assertThat(filteredIssues).hasSize(1);
         assertThat(filteredIssues.get(0).getKind()).isEqualTo("private method");
     }
 
+    /**
+     * Issues with kind in blacklist must be removed.
+     */
     @Test
     public void mustRemoveIssueWithKindInBlacklist() {
         final DeadCodeIssueFilterService deadCodeIssueFilterService =

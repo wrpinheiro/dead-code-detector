@@ -25,4 +25,4 @@ docker -H tcp://webserver.devfactory.com service ps wpinheiro_dead_code_detectio
 docker -H tcp://webserver.devfactory.com node ls
 docker -H 10.224.103.48 ps | grep wpinheiro
 
-docker -H 10.224.103.48 exec -it 1c7781a18d9a tail -f /var/log/deadcodedetection/server.log
+docker -H 10.224.103.48 exec -it 2aef6804b32a tail -f /var/log/deadcodedetection/server.log

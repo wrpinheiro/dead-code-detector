@@ -1,6 +1,7 @@
 package com.wrpinheiro.deadcodedetection.controller.dto;
 
 import com.wrpinheiro.deadcodedetection.model.Language;
+import com.wrpinheiro.deadcodedetection.validation.GithubUrl;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -12,6 +13,7 @@ import lombok.Data;
 @Data
 public class RepositoryRequest {
     @ApiModelProperty(required = true, allowableValues = "https://github.com/<owner>/<repository>.git")
+    @GithubUrl
     private String url;
 
     @ApiModelProperty(value = "The language used to analyze the repository", required = false,
