@@ -1,9 +1,10 @@
-package com.wrpinheiro.deadcodedetection.controller.dto;
+package com.wrpinheiro.deadcodedetection.dto;
 
 import com.wrpinheiro.deadcodedetection.model.GithubRepository;
 import com.wrpinheiro.deadcodedetection.model.Repository;
 import com.wrpinheiro.deadcodedetection.model.RepositoryStatus;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
@@ -13,6 +14,7 @@ import java.util.Date;
  * @author wrpinheiro
  */
 @Data
+@NoArgsConstructor
 public class SimpleRepositoryResponse {
     private String uuid;
     private GithubRepository githubRepository;
@@ -20,9 +22,6 @@ public class SimpleRepositoryResponse {
     private Date createdAt;
     private Date lastAnalysisRequested;
     private SimpleAnalysisInformationResponse lastAnalysisInformation;
-
-    public SimpleRepositoryResponse() {
-    }
 
     /**
      * Create the Simple Repository and fill its properties with values from the attribute repository.

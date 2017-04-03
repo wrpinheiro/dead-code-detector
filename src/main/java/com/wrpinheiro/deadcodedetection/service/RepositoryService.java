@@ -1,7 +1,10 @@
 package com.wrpinheiro.deadcodedetection.service;
 
+import com.wrpinheiro.deadcodedetection.dto.SimpleRepositoryResponse;
+import com.wrpinheiro.deadcodedetection.exceptions.PaginationException;
 import com.wrpinheiro.deadcodedetection.model.DeadCodeIssue;
 import com.wrpinheiro.deadcodedetection.model.Language;
+import com.wrpinheiro.deadcodedetection.model.Paginator;
 import com.wrpinheiro.deadcodedetection.model.Repository;
 
 import java.util.List;
@@ -14,7 +17,7 @@ import java.util.List;
 public interface RepositoryService {
     Repository addRepository(String url, String branch, Language language);
 
-    List<Repository> findAll();
+    Paginator<SimpleRepositoryResponse> findAllByPage(Integer page, Integer pageSize) throws PaginationException;
 
     void analyze(Repository newRepository);
 

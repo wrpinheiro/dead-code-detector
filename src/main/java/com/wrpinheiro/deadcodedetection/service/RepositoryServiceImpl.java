@@ -7,11 +7,14 @@ import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 import com.wrpinheiro.deadcodedetection.dao.RepositoryDAO;
+import com.wrpinheiro.deadcodedetection.dto.SimpleRepositoryResponse;
 import com.wrpinheiro.deadcodedetection.exceptions.DuplicatedEntity;
 import com.wrpinheiro.deadcodedetection.exceptions.InvalidStateException;
+import com.wrpinheiro.deadcodedetection.exceptions.PaginationException;
 import com.wrpinheiro.deadcodedetection.model.DeadCodeIssue;
 import com.wrpinheiro.deadcodedetection.model.GithubRepository;
 import com.wrpinheiro.deadcodedetection.model.Language;
+import com.wrpinheiro.deadcodedetection.model.Paginator;
 import com.wrpinheiro.deadcodedetection.model.Repository;
 import com.wrpinheiro.deadcodedetection.model.RepositoryStatus;
 import com.wrpinheiro.deadcodedetection.service.analysis.AnalysisService;
@@ -21,6 +24,7 @@ import org.springframework.stereotype.Service;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * Implements repository services.
@@ -37,6 +41,9 @@ public class RepositoryServiceImpl implements RepositoryService {
 
     @Autowired
     private AnalysisService analysisService;
+
+    @Autowired
+    private PaginationService paginationService;
 
     /**
      * Generate a UUID to use as key for a new repository.
@@ -111,8 +118,15 @@ public class RepositoryServiceImpl implements RepositoryService {
     }
 
     @Override
-    public List<Repository> findAll() {
-        return repositoryDAO.findAll();
+    public Paginator<SimpleRepositoryResponse> findAllByPage(Integer page, Integer pageSize)
+            throws PaginationException {
+        List<SimpleRepositoryResponse> repositories = repositoryDAO
+                .findAll()
+                .stream()
+                .map(repository -> new SimpleRepositoryResponse(repository))
+                .collect(Collectors.toList());
+
+        return paginationService.getPage(repositories, page, pageSize);
     }
 
     @Override

@@ -6,7 +6,7 @@ import static com.wrpinheiro.deadcodedetection.model.RepositoryStatus.FAILED;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
-import com.wrpinheiro.deadcodedetection.controller.dto.RepositoryRequest;
+import com.wrpinheiro.deadcodedetection.dto.RepositoryRequest;
 import com.wrpinheiro.deadcodedetection.model.Language;
 import com.wrpinheiro.deadcodedetection.model.Paginator;
 import com.wrpinheiro.deadcodedetection.model.Repository;

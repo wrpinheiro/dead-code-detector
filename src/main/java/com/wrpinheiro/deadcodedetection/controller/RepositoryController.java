@@ -1,7 +1,7 @@
 package com.wrpinheiro.deadcodedetection.controller;
 
-import com.wrpinheiro.deadcodedetection.controller.dto.RepositoryRequest;
-import com.wrpinheiro.deadcodedetection.controller.dto.SimpleRepositoryResponse;
+import com.wrpinheiro.deadcodedetection.dto.RepositoryRequest;
+import com.wrpinheiro.deadcodedetection.dto.SimpleRepositoryResponse;
 import com.wrpinheiro.deadcodedetection.exceptions.DuplicatedEntity;
 import com.wrpinheiro.deadcodedetection.exceptions.InvalidStateException;
 import com.wrpinheiro.deadcodedetection.exceptions.PaginationException;
@@ -20,7 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 import javax.ws.rs.*;
@@ -60,13 +59,7 @@ public class RepositoryController {
             @ApiParam(value = "the max number of elements per page") @DefaultValue("10") @QueryParam("pageSize")
                     final Integer pageSize) {
         try {
-            final List<SimpleRepositoryResponse> response = repositoryService
-                    .findAll()
-                    .stream()
-                    .map(repository -> new SimpleRepositoryResponse(repository))
-                    .collect(Collectors.toList());
-
-            return paginationService.getPage(response, page, pageSize);
+            return repositoryService.findAllByPage(page, pageSize);
         } catch (PaginationException ex) {
             throw new WebApplicationException(ex, Response.Status.BAD_REQUEST);
         }

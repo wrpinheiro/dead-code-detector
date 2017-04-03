@@ -1,4 +1,4 @@
-package com.wrpinheiro.deadcodedetection.controller.dto;
+package com.wrpinheiro.deadcodedetection.dto;
 
 import com.wrpinheiro.deadcodedetection.model.Language;
 import com.wrpinheiro.deadcodedetection.validation.GithubUrl;
