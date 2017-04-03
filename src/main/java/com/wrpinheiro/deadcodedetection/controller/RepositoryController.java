@@ -126,7 +126,7 @@ public class RepositoryController {
      */
     @ApiOperation(value = "Return a paginated list of issues (dead code) found in the repository, sorted by filename"
             + " and kind. The result can also be filtered by kind. Some possible values for the kind field are:"
-            +  "parameter, method or variables (case is ignored and the search is of type issue.ref contains kind",
+            +  "parameter, method or variables (case is ignored and the search is of type issue.kind contains kind",
             response = DeadCodeIssue.class, responseContainer = "List")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The issues of a repository", response = DeadCodeIssue.class,
